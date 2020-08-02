@@ -1,25 +1,37 @@
 ﻿using System;
+using JetBrains.Annotations;
 
 namespace AsyncScheduler.History
 {
     /// <inheritdoc />
     public class JobHistoryEntry : IJobHistoryEntry
     {
+        public JobHistoryEntry(DateTime executionTime, [NotNull] string jobKey,
+            JobResult jobResult, object result = null)
+        {
+            ExecutionTime = executionTime;
+            JobKey = jobKey ?? throw new ArgumentNullException(nameof(jobKey));
+            Result = result;
+            JobResult = jobResult;
+        }
+
         /// <inheritdoc />
-        public DateTime ExecutionTime { get; set; }
-        
+        public DateTime ExecutionTime { get; }
+
         /// <inheritdoc />
-        public string JobKey { get; set; }
-        
+        [NotNull]
+        public string JobKey { get; }
+
         /// <inheritdoc />
-        public string ResultString => Result.ToString();
-        
+        public string ResultString => Result?.ToString();
+
         /// <summary>
         /// Result object returned by task. (Might be used later.)
         /// </summary>
-        public object Result { get; set; }
-        
+        [CanBeNull]
+        public object Result { get; }
+
         /// <inheritdoc />
-        public JobResult JobResult { get; set; }
+        public JobResult JobResult { get; }
     }
 }

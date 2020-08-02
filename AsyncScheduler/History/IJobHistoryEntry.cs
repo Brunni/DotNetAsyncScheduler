@@ -25,6 +25,6 @@ namespace AsyncScheduler.History
         /// <summary>
         /// Status of the job (e.g. success, failure)
         /// </summary>
-        JobResult JobResult { get; set; }
+        JobResult JobResult { get; }
     }
 }

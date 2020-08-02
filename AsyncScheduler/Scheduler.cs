@@ -15,26 +15,26 @@ namespace AsyncScheduler
 {
     public class Scheduler
     {
-        
-
         private readonly ConcurrentDictionary<string, Task> _runningJobs = new ConcurrentDictionary<string, Task>();
 
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<Scheduler> _logger;
         private readonly ISchedulerClock _clock;
         private readonly List<IJobStartRestriction> _jobRestrictions = new List<IJobStartRestriction>();
+
         /// <summary>
         /// Determines the delay between each run, where the schedules are checked.
         /// </summary>
-        private readonly TimeSpan _heartBeatDelay;
+        public TimeSpan LoopDelay { get; set; }
 
-        public Scheduler(IServiceProvider serviceProvider, ILogger<Scheduler> logger, ISchedulerClock clock, JobManager jobManager)
+        public Scheduler(IServiceProvider serviceProvider, ILogger<Scheduler> logger, ISchedulerClock clock,
+            JobManager jobManager)
         {
             _serviceProvider = serviceProvider;
             _logger = logger;
             _clock = clock;
             JobManager = jobManager;
-            _heartBeatDelay = TimeSpan.FromSeconds(5); //TODO: Make public
+            LoopDelay = TimeSpan.FromSeconds(5); //TODO: Make public
         }
 
         public JobManager JobManager { get; }
@@ -59,14 +59,14 @@ namespace AsyncScheduler
                     var jobQueue = JobManager.Jobs.Where(
                             j => !IsJobRunning(j.Key) && IsJobScheduled(j.Key))
                         .OrderByDescending(pair => GetJobExecutionPriority(pair.Key));
-                    
+
                     foreach (var job in jobQueue)
                     {
                         cancellationToken.ThrowIfCancellationRequested();
                         CheckRestrictionsAndStartJob(cancellationToken, job);
                     }
 
-                    await Task.Delay(_heartBeatDelay, cancellationToken);
+                    await Task.Delay(LoopDelay, cancellationToken);
                 }
             }
             catch (OperationCanceledException e)
@@ -77,7 +77,8 @@ namespace AsyncScheduler
             Task finishUpTask = null;
             try
             {
-                _logger.LogInformation("Scheduler stopped. Waiting for running jobs to finish: {jobCount}", _runningJobs.Keys);
+                _logger.LogInformation("Scheduler stopped. Waiting for running jobs to finish: {jobCount}",
+                    _runningJobs.Keys);
                 // Await all running tasks
                 finishUpTask = Task.WhenAll(_runningJobs.Select(pair => pair.Value).ToList());
                 await finishUpTask;
@@ -121,14 +122,14 @@ namespace AsyncScheduler
         {
             var schedule = GetSchedule(jobKey);
             if (schedule == null) return 0;
-            
+
             var jobHistoryEntry = JobHistory.GetLastJobResult(jobKey);
             var lastSuccessfulExecution = JobHistory.GetLastSuccessfulJobResult(jobKey);
             var executionPriority =
                 schedule.GetExecutionPriority(jobKey, jobHistoryEntry, lastSuccessfulExecution, _clock.GetNow());
-            _logger.LogTrace("Execution priority from scheduler for job {jobKey} is {priority}", jobKey, executionPriority);
+            _logger.LogTrace("Execution priority from scheduler for job {jobKey} is {priority}", jobKey,
+                executionPriority);
             return executionPriority;
-
         }
 
         private ISchedule GetSchedule(string jobKey)
@@ -196,6 +197,8 @@ namespace AsyncScheduler
             catch (Exception e)
             {
                 _logger.LogError(e, "Error starting job {jobKey}", job.Key);
+                JobHistory.Add(new JobHistoryEntry(_clock.GetNow(), job.Key, JobResult.Failure,
+                    "JobStartFailed: " + e.Message));
             }
         }
 
@@ -221,13 +224,7 @@ namespace AsyncScheduler
             {
                 var result = await task;
                 _logger.LogInformation("Job {jobKey} finished: {result}", jobKey, result);
-                JobHistory.Add(new JobHistoryEntry
-                {
-                    ExecutionTime = _clock.GetNow(),
-                    JobKey = jobKey,
-                    Result = result,
-                    JobResult = JobResult.Success
-                });
+                JobHistory.Add(new JobHistoryEntry(_clock.GetNow(), jobKey, JobResult.Success, result));
             }
             catch (OperationCanceledException e)
             {
@@ -236,12 +233,7 @@ namespace AsyncScheduler
             catch (Exception e)
             {
                 _logger.LogError(e, "Error during execution of job {jobKey}", jobKey);
-                JobHistory.Add(new JobHistoryEntry
-                {
-                    ExecutionTime = _clock.GetNow(),
-                    JobKey = jobKey,
-                    JobResult = JobResult.Failure
-                });
+                JobHistory.Add(new JobHistoryEntry(_clock.GetNow(), jobKey, JobResult.Failure,"JobFailed: " + e.Message));
             }
             finally
             {

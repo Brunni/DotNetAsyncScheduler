@@ -30,7 +30,7 @@ namespace ConsoleExample
             }
             catch (OperationCanceledException e)
             {
-                _logger.LogInformation("Download cancelled");
+                _logger.LogInformation(e,"Download cancelled but we return 0 and mark job as success");
                 //Hint: If we return a value here, the value is recorded. If we rethrow, the result is not recorded/logged.
                 return 0;
             }

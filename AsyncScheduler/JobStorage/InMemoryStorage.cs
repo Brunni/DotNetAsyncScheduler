@@ -37,10 +37,20 @@ namespace AsyncScheduler.JobStorage
             _schedules[jobKey] = scheduleProvider;
         }
 
-        public void Remove(string jobKey)
+        public bool Remove(string jobKey)
         {
-            _jobs.TryRemove(jobKey, out _);
-            _schedules.TryRemove(jobKey, out _);
+            var removed = _jobs.TryRemove(jobKey, out _);
+            if (!removed)
+            {
+                return false;
+            }
+
+            if (!_schedules.TryRemove(jobKey, out _))
+            {
+                throw new InvalidOperationException($"Major implementation error during removing of job schedule for {jobKey}");
+            }
+
+            return true;
         }
     }
 }

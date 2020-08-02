@@ -122,19 +122,19 @@ namespace AsyncScheduler
         /// Removes the job.
         /// If job is running, current run of this job will be finished (no cancellation requested).
         /// </summary>
-        public void RemoveJob<TJob>() where TJob : IJob
+        public bool RemoveJob<TJob>() where TJob : IJob
         {
-            RemoveJob(typeof(TJob).FullName);
+            return RemoveJob(typeof(TJob).FullName);
         }
 
         /// <summary>
         /// Removes the job.
         /// If job is running, current run of this job will be finished (no cancellation requested).
         /// </summary>
-        public void RemoveJob(string jobKey)
+        public bool RemoveJob(string jobKey)
         {
             _logger.LogInformation("Job {jobKey} is removed from Scheduler", jobKey);
-            _jobStorage.Remove(jobKey);
+            return _jobStorage.Remove(jobKey);
         }
     }
 }

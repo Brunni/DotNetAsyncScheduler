@@ -28,11 +28,11 @@ namespace AsyncScheduler.JobStorage
         /// Access to Schedules
         /// </summary>
         IDictionary<string, IScheduleProvider> Schedules { get; }
-        
+
         /// <summary>
         /// Remove job
         /// </summary>
         /// <param name="jobKey">job key</param>
-        void Remove(string jobKey);
+        bool Remove(string jobKey);
     }
 }

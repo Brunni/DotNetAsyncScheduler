@@ -17,7 +17,6 @@ namespace ConsoleExample
 
         public async Task<object> Start(CancellationToken cancellationToken)
         {
-            long i = 1;
             while (true)
             {
                 try
@@ -26,7 +25,6 @@ namespace ConsoleExample
                     // We don't pass cancellation token here for testing reasons to get exception
                     await Task.Delay(10);
                     //Console.Write("i");
-                    i++;
                 }
                 catch (OperationCanceledException e)
                 {
@@ -35,7 +33,6 @@ namespace ConsoleExample
                     throw;
                 }
             }
-            return i;
         }
     }
 }
