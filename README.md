@@ -1,5 +1,12 @@
 # DotNetAsyncScheduler
 
+## Requirements / Dependencies
+* .NET Core 2.0 or .NET Framework 4.7.2
+
+* Microsoft.Extensions.DependencyInjection.Abstractions
+* Microsoft.Extensions.Logging.Abstractions
+* JetBrains.Annotations
+
 ## Implementation Goals
 
 * Simple triggering of async Jobs based on Schedules
