@@ -12,6 +12,11 @@
 * Allow stopping / restarting and chaning of jobs/schedules on the fly
 * Use logging via `Microsoft.Extensions.Logging.Abstractions`
 
+What we don't have:
+* Any kind of persistence of job runs or history (e.g. in Database)
+* No serialization (yeay) of jobs or job parameters
+* Jobs with parameters
+
 ## Execution model
 
 In each cycle (cycle delay can be configured), the Scheduler pulls all Schedules of jobs, which are currently not running.
@@ -85,7 +90,7 @@ The job may end with an exception in case of errors. The return value is logged 
 
 ## Schedules
 
-Schedules define, when a Job is executed: If schedule returns int>0, the Job is started (when no restrictions apply).
+Schedules define, when a Job is executed: If schedule returns int>0, the Job is started (when no restrictions apply). Jobs with higher numbers are started first, which is only relevant, when Restrictions (e.g. Mutex, MaxJobNumber) are applied.
 A Schedule might handle retry in case of failures.
 
 As Schedules can be created via DI, they may connect to a database / config file to read current configuration state.
