@@ -55,10 +55,15 @@ namespace AsyncScheduler
                 {
                     _logger.LogTrace("Checking for tasks ...");
 
-                    //TODO: Change logic to only call scheduler once.
-                    var jobQueue = JobManager.Jobs.Where(
-                            j => !IsJobRunning(j.Key) && IsJobScheduled(j.Key))
-                        .OrderByDescending(pair => GetJobExecutionPriority(pair.Key));
+                    var priorityJobDictionary = JobManager.Jobs.Where(
+                            j => !IsJobRunning(j.Key))
+                        .Select(j => new KeyValuePair<string, int>(j.Key, GetJobExecutionPriority(j.Key)))
+                        .Where(jp => jp.Value > 0)
+                        .ToDictionary(jp => jp.Key, jp => jp.Value);
+
+                    var jobQueue = JobManager.Jobs
+                        .Where(pair => priorityJobDictionary.ContainsKey(pair.Key))
+                        .OrderByDescending(pair => priorityJobDictionary[pair.Key]);
 
                     foreach (var job in jobQueue)
                     {
@@ -109,13 +114,6 @@ namespace AsyncScheduler
 
                 StartJob(cancellationToken, job);
             }
-        }
-
-        private bool IsJobScheduled(string jobKey)
-        {
-            var executionPriority = GetJobExecutionPriority(jobKey);
-            var b = executionPriority > 0;
-            return b;
         }
 
         private int GetJobExecutionPriority(string jobKey)
@@ -233,7 +231,8 @@ namespace AsyncScheduler
             catch (Exception e)
             {
                 _logger.LogError(e, "Error during execution of job {jobKey}", jobKey);
-                JobHistory.Add(new JobHistoryEntry(_clock.GetNow(), jobKey, JobResult.Failure,"JobFailed: " + e.Message));
+                JobHistory.Add(new JobHistoryEntry(_clock.GetNow(), jobKey, JobResult.Failure,
+                    "JobFailed: " + e.Message));
             }
             finally
             {
