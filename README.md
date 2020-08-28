@@ -1,8 +1,9 @@
 # DotNetAsyncScheduler
 
-
-Prerelease versions from Master
+## Releases
+### Prerelease versions from Master
 ![CI-Release](https://github.com/Brunni/DotNetAsyncScheduler/workflows/CI-Release/badge.svg?branch=master)
+[![Build status](https://ci.appveyor.com/api/projects/status/cbvl1i0jmku79gwo/branch/master?svg=true)](https://ci.appveyor.com/project/Brunni/dotnetasyncscheduler/branch/master)
 available in [MyGet-Feed](https://www.myget.org/feed/dotnetasyncscheduler/package/nuget/DotnetAsyncScheduler)
 
 ## Requirements / Dependencies
