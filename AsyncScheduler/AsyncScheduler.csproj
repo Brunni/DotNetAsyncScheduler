@@ -1,7 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net472;netcoreapp2.0</TargetFrameworks>
+        <TargetFrameworks>net472;netcoreapp2.1</TargetFrameworks>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <Authors>Michael Brunner</Authors>
         <Description>Task scheduler for .NET Core / Full</Description>
@@ -15,6 +15,8 @@
 
         <!-- Optional: Embed source files that are not tracked by the source control manager in the PDB -->
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <IsTestProject>false</IsTestProject>
+        <Version>0.0.0</Version>      
     </PropertyGroup>
 
     <ItemGroup>
@@ -27,6 +29,10 @@
         <PackageReference Include="MinVer" Version="2.3.0" PrivateAssets="All" />
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
     </ItemGroup>
+    <PropertyGroup>
+      <MinVerTagPrefix>v</MinVerTagPrefix>
+      <MinVerSkip Condition="'$(Configuration)' == 'Debug'">true</MinVerSkip>
+    </PropertyGroup>
 
     <ItemGroup>
         <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
