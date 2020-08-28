@@ -1,7 +1,9 @@
 # DotNetAsyncScheduler
 
-Master
+
+Prerelease versions from Master
 ![CI-Release](https://github.com/Brunni/DotNetAsyncScheduler/workflows/CI-Release/badge.svg?branch=master)
+available in [MyGet-Feed](https://www.myget.org/feed/dotnetasyncscheduler/package/nuget/DotnetAsyncScheduler)
 
 ## Requirements / Dependencies
 * .NET Core 2.0 or .NET Framework 4.7.2
