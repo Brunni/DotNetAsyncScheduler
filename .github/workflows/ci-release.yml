@@ -21,7 +21,10 @@ jobs:
       run: dotnet restore
     - name: Build
       run: dotnet build --configuration Release --no-restore
-    - name: Test
-      run: dotnet test --no-restore --verbosity normal
     - name: Pack
       run: dotnet pack AsyncScheduler/AsyncScheduler.csproj
+    - name: Add github test logger
+      run: dotnet add AsyncSchedulerTest/AsyncSchedulerTest.csproj package GitHubActionsTestLogger
+    - name: Test
+      run: dotnet test --no-restore --verbosity normal --logger GitHubActions
+
