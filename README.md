@@ -1,5 +1,8 @@
 # DotNetAsyncScheduler
 
+Master
+![CI-Release](https://github.com/Brunni/DotNetAsyncScheduler/workflows/CI-Release/badge.svg?branch=master)
+
 ## Requirements / Dependencies
 * .NET Core 2.0 or .NET Framework 4.7.2
 
