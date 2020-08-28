@@ -29,8 +29,8 @@ jobs:
       run: dotnet add AsyncSchedulerTest/AsyncSchedulerTest.csproj package GitHubActionsTestLogger
     - name: Build Tests
       run: dotnet build AsyncScheduler/AsyncScheduler.csproj
-    - name: Test .NET Core 2.0
-      run: dotnet test --no-restore --verbosity normal --logger GitHubActions --framework netcoreapp2.0
+    - name: Test .NET Core 2.1
+      run: dotnet test --no-restore --verbosity normal --logger GitHubActions --framework netcoreapp2.1
     - name: Test .NET Core 3.1
       run: dotnet test --no-restore --verbosity normal --logger GitHubActions --framework netcoreapp3.1
     - name: Test .NET Framework 4.7.2
