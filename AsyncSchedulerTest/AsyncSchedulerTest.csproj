@@ -4,7 +4,7 @@
 
         <IsPackable>false</IsPackable>
 
-        <TargetFrameworks>net472;netcoreapp3.1</TargetFrameworks>
+        <TargetFrameworks>net472;netcoreapp3.1;netcoreapp2.0</TargetFrameworks>
     </PropertyGroup>
 
     <ItemGroup>
