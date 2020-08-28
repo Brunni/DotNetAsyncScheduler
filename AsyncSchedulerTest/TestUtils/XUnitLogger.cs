@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using Microsoft.Extensions.Logging;
 using Xunit.Abstractions;
 
@@ -14,7 +15,7 @@ namespace AsyncSchedulerTest.TestUtils
         }
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
-            _output.WriteLine($"[{logLevel}]: {state} {exception}");
+            _output.WriteLine($"T:{Thread.CurrentThread.ManagedThreadId:00} [{logLevel}]: {state} {exception}");
         }
 
         public bool IsEnabled(LogLevel logLevel)
