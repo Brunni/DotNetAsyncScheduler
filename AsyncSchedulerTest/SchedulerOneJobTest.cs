@@ -140,7 +140,7 @@ namespace AsyncSchedulerTest
             var schedulerTask = RunScheduler(TimeSpan.FromSeconds(2));
             // Task is only executed once then we update schedule and task is triggered again
             await Task.Delay(400);
-            (_simpleJobInstance.ExecutionCount - executionCountBefore).Should().Be(1);
+            (_simpleJobInstance.ExecutionCount - executionCountBefore).Should().Be(1, $" executionCountBefore was {executionCountBefore}");
             await Task.Delay(100);
             _scheduler.JobManager.UpdateSchedule<SimpleJob, ScheduleEndless>();
             await schedulerTask;
