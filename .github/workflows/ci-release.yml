@@ -29,4 +29,8 @@ jobs:
       run: dotnet add AsyncSchedulerTest/AsyncSchedulerTest.csproj package GitHubActionsTestLogger
     - name: Test
       run: dotnet test --no-restore --verbosity normal --logger GitHubActions
-
+    - name: Artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: nuget
+        path: AsyncScheduler/**/*.s?nupkg
