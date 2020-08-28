@@ -24,7 +24,7 @@ jobs:
     - name: Build
       run: dotnet build --configuration Release --no-restore
     - name: Pack
-      run: dotnet pack AsyncScheduler/AsyncScheduler.csproj
+      run: dotnet pack AsyncScheduler/AsyncScheduler.csproj --configuration Release
     - name: Add github test logger
       run: dotnet add AsyncSchedulerTest/AsyncSchedulerTest.csproj package GitHubActionsTestLogger
     - name: Test
@@ -34,3 +34,8 @@ jobs:
       with:
         name: nuget
         path: AsyncScheduler/**/*.s?nupkg
+    - name: Push to MyGet
+      env:
+        NUGET_API_KEY: ${{ secrets.MYGET_API_KEY }}
+      run: dotnet nuget push **/*.nupkg --source https://www.myget.org/F/dotnetasyncscheduler/api/v3/index.json --api-key "$env:NUGET_API_KEY"
+      shell: pwsh
