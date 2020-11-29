@@ -1,10 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsyncScheduler", "AsyncScheduler\AsyncScheduler.csproj", "{2AF1A1DE-AD00-4485-A110-8FAA466A33CA}"
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30711.63
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AsyncScheduler", "AsyncScheduler\AsyncScheduler.csproj", "{2AF1A1DE-AD00-4485-A110-8FAA466A33CA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleExample", "ConsoleExample\ConsoleExample.csproj", "{2FC9B0F0-54D0-49CE-B62A-F7A1146D368F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleExample", "ConsoleExample\ConsoleExample.csproj", "{2FC9B0F0-54D0-49CE-B62A-F7A1146D368F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsyncSchedulerTest", "AsyncSchedulerTest\AsyncSchedulerTest.csproj", "{763B315E-677B-4C5F-91A4-A3435A45908A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AsyncSchedulerTest", "AsyncSchedulerTest\AsyncSchedulerTest.csproj", "{763B315E-677B-4C5F-91A4-A3435A45908A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorAppExample", "BlazorAppExample\BlazorAppExample.csproj", "{E0E27479-F283-4012-84FD-909AA735096B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,5 +29,15 @@ Global
 		{763B315E-677B-4C5F-91A4-A3435A45908A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{763B315E-677B-4C5F-91A4-A3435A45908A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{763B315E-677B-4C5F-91A4-A3435A45908A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E0E27479-F283-4012-84FD-909AA735096B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E0E27479-F283-4012-84FD-909AA735096B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E0E27479-F283-4012-84FD-909AA735096B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E0E27479-F283-4012-84FD-909AA735096B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {54180FBF-2417-48CD-8D66-3554FB13ADD5}
 	EndGlobalSection
 EndGlobal

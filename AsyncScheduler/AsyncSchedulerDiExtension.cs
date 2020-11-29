@@ -19,6 +19,7 @@ namespace AsyncScheduler
             services.AddTransient<Scheduler>();
             services.AddTransient<ScheduleOnceWithRetryDelay>();
             services.AddTransient<ScheduleOnce>();
+            services.AddTransient<ScheduleNever>();
             services.AddTransient<ISchedulerClock, UtcSchedulerClock>();
             services.AddTransient<JobManager>();
             services.AddTransient<IJobStorage, InMemoryStorage>();

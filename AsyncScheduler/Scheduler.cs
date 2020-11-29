@@ -57,6 +57,11 @@ namespace AsyncScheduler
         public IJobHistory JobHistory { get; } = new JobHistory();
 
         /// <summary>
+        /// List of currently active jobs
+        /// </summary>
+        public IReadOnlyCollection<string> CurrentlyRunningJobs => _runningJobs.Keys.ToList();
+
+        /// <summary>
         /// Jobs added here are executed in the next loop (when no restrictions apply).
         /// Job is removed from queue, when executed or restrictions apply during execution.
         /// </summary>
@@ -150,8 +155,9 @@ namespace AsyncScheduler
             var i = 0;
             while (QuickStartQueue.TryDequeue(out var entry))
             {
-                if (!priorityJobDictionary.ContainsKey(entry))
+                if (!priorityJobDictionary.ContainsKey(entry) && !IsJobRunning(entry))
                 {
+                    _logger.LogInformation("Job {jobKey} is added as highest priority as it was manually scheduled", entry);
                     // Add job with highest priority
                     priorityJobDictionary.Add(entry, int.MaxValue - i);
                     i++;
