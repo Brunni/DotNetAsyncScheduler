@@ -13,6 +13,13 @@ using Microsoft.Extensions.Logging;
 
 namespace AsyncScheduler
 {
+    /// <summary>
+    /// Central entry class for the AsyncScheduler.
+    /// The Scheduler has methods to add/remove restrictions and to start the scheduler.
+    /// As it is the central class it allows access to the JobManager to add/remove jobs and the JobHistory.
+    /// </summary>
+    /// <remarks>General behavior: A loop is executed every 5 seconds (<see cref="LoopDelay"/>) and checks all Schedules to see, which jobs should be executed.
+    /// When jobs should be executed, they are ordered by their execution policy, then each is checked for restrictions and started.</remarks>
     public class Scheduler
     {
         private readonly ConcurrentDictionary<string, Task> _runningJobs = new ConcurrentDictionary<string, Task>();
@@ -25,8 +32,11 @@ namespace AsyncScheduler
         /// <summary>
         /// Determines the delay between each run, where the schedules are checked.
         /// </summary>
-        public TimeSpan LoopDelay { get; set; }
+        public TimeSpan LoopDelay { get; set; } = TimeSpan.FromSeconds(5);
 
+        /// <summary>
+        /// Use DI framework to create the Scheduler.
+        /// </summary>
         public Scheduler(IServiceProvider serviceProvider, ILogger<Scheduler> logger, ISchedulerClock clock,
             JobManager jobManager)
         {
@@ -34,18 +44,50 @@ namespace AsyncScheduler
             _logger = logger;
             _clock = clock;
             JobManager = jobManager;
-            LoopDelay = TimeSpan.FromSeconds(5); //TODO: Make public
         }
 
+        /// <summary>
+        /// Access to the JobManager to add / remove jobs and their schedules.
+        /// </summary>
         public JobManager JobManager { get; }
 
+        /// <summary>
+        /// History of job executions.
+        /// </summary>
         public IJobHistory JobHistory { get; } = new JobHistory();
 
+        /// <summary>
+        /// Jobs added here are executed in the next loop (when no restrictions apply).
+        /// Job is removed from queue, when executed or restrictions apply during execution.
+        /// </summary>
+        public ConcurrentQueue<string> QuickStartQueue { get; } = new ConcurrentQueue<string>();
+
+        /// <summary>
+        /// Jobs added here are executed in the next loop (when no restrictions apply).
+        /// Job is removed from queue, when executed or restrictions apply during execution.
+        /// </summary>
+        /// <remarks>Job needs to exist in Job list already.</remarks>
+        /// <typeparam name="T">Job</typeparam>
+        public void QuickStart<T>() where T : IJob
+        {
+            QuickStartQueue.Enqueue(typeof(T).FullName);
+        }
+
+        /// <summary>
+        /// Add a job start restriction. The restriction prevents the starting of the job, although it is scheduled.
+        /// </summary>
+        /// <param name="jobStartRestriction">the restriction</param>
         public void AddRestriction(IJobStartRestriction jobStartRestriction)
         {
             _jobRestrictions.Add(jobStartRestriction);
         }
 
+        /// <summary>
+        /// Start the scheduling loop. Use the cancellationToken to stop it again.
+        /// After stopping it, it can be restarted.
+        /// </summary>
+        /// <param name="cancellationToken">cancellation token</param>
+        /// <returns>Task of the job scheduling loop</returns>
         public async Task Start(CancellationToken cancellationToken)
         {
             _logger.LogInformation("Starting Scheduler...");
@@ -60,6 +102,8 @@ namespace AsyncScheduler
                         .Select(j => new KeyValuePair<string, int>(j.Key, GetJobExecutionPriority(j.Key)))
                         .Where(jp => jp.Value > 0)
                         .ToDictionary(jp => jp.Key, jp => jp.Value);
+
+                    AddQuickStartJobs(priorityJobDictionary);
 
                     var jobQueue = JobManager.Jobs
                         .Where(pair => priorityJobDictionary.ContainsKey(pair.Key))
@@ -101,6 +145,20 @@ namespace AsyncScheduler
             }
         }
 
+        private void AddQuickStartJobs(Dictionary<string, int> priorityJobDictionary)
+        {
+            var i = 0;
+            while (QuickStartQueue.TryDequeue(out var entry))
+            {
+                if (!priorityJobDictionary.ContainsKey(entry))
+                {
+                    // Add job with highest priority
+                    priorityJobDictionary.Add(entry, int.MaxValue - i);
+                    i++;
+                }
+            }
+        }
+
         private void CheckRestrictionsAndStartJob(CancellationToken cancellationToken, KeyValuePair<string, Type> job)
         {
             using (_logger.BeginScope("job", job.Key))
@@ -123,10 +181,8 @@ namespace AsyncScheduler
 
             var jobHistoryEntry = JobHistory.GetLastJobResult(jobKey);
             var lastSuccessfulExecution = JobHistory.GetLastSuccessfulJobResult(jobKey);
-            var executionPriority =
-                schedule.GetExecutionPriority(jobKey, jobHistoryEntry, lastSuccessfulExecution, _clock.GetNow());
-            _logger.LogTrace("Execution priority from scheduler for job {jobKey} is {priority}", jobKey,
-                executionPriority);
+            var executionPriority = schedule.GetExecutionPriority(jobKey, jobHistoryEntry, lastSuccessfulExecution, _clock.GetNow());
+            _logger.LogTrace("Execution priority from scheduler for job {jobKey} is {priority}", jobKey, executionPriority);
             return executionPriority;
         }
 
@@ -162,8 +218,7 @@ namespace AsyncScheduler
                     var restrictStart = restriction.RestrictStart(jobKey, runningJobs);
                     if (restrictStart)
                     {
-                        _logger.LogTrace("JobStartRestriction for {jobKey} detected by {restriction}", jobKey,
-                            restriction.GetType());
+                        _logger.LogTrace("JobStartRestriction for {jobKey} detected by {restriction}", jobKey, restriction.GetType());
                     }
 
                     return restrictStart;
@@ -216,6 +271,9 @@ namespace AsyncScheduler
             }
         }
 
+        /// <summary>
+        /// Method which is executed when a job finishes execution.
+        /// </summary>
         private async void ResolveTaskEnd(string jobKey, Task<object> task)
         {
             try

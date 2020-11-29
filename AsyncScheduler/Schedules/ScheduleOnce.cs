@@ -8,6 +8,7 @@ namespace AsyncScheduler.Schedules
     /// </summary>
     public class ScheduleOnce : ISchedule
     {
+        /// <inheritdoc />
         public int GetExecutionPriority(string jobKey, IJobHistoryEntry lastExecution, IJobHistoryEntry lastSuccessfulExecution,
             DateTime now)
         {

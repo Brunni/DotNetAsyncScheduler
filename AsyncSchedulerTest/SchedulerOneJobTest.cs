@@ -45,6 +45,26 @@ namespace AsyncSchedulerTest
         }
 
         [Fact]
+        public async Task AddOneJob_ScheduleNever_QuickStartJob_ExecutesJobViaQuickStart()
+        {
+            _scheduler.LoopDelay = TimeSpan.FromMilliseconds(100);
+            _scheduler.JobManager.AddJob<SimpleJob, ScheduleNever>();
+            var runSchedulerTask = RunScheduler(TimeSpan.FromSeconds(0.5));
+            _scheduler.QuickStart<SimpleJob>();
+            await runSchedulerTask;
+
+            var jobKey = typeof(SimpleJob).FullName;
+            var lastSuccessfulJobResult = _scheduler.JobHistory.GetLastSuccessfulJobResult(jobKey);
+            lastSuccessfulJobResult.Should().NotBeNull();
+            _scheduler.JobHistory.GetLastJobResult(jobKey).Should()
+                .BeSameAs(lastSuccessfulJobResult);
+
+            lastSuccessfulJobResult?.ExecutionTime.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(2));
+            lastSuccessfulJobResult?.JobResult.Should().Be(JobResult.Success);
+            lastSuccessfulJobResult?.JobKey.Should().Be(jobKey);
+        }
+
+        [Fact]
         public async Task AddStartFailingJob_ScheduleOnce_ExecutesJobAndMarksResult()
         {
             _scheduler.JobManager.AddJob<NotImplementedJob, ScheduleOnce>();

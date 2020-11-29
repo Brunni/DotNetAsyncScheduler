@@ -17,6 +17,9 @@ namespace AsyncScheduler
         private readonly ILogger<JobManager> _logger;
         private readonly IJobStorage _jobStorage;
 
+        /// <summary>
+        /// Called by DI
+        /// </summary>
         public JobManager(IServiceProvider serviceProvider, ILogger<JobManager> logger, IJobStorage jobStorage)
         {
             _serviceProvider = serviceProvider;
