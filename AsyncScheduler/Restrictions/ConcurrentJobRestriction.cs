@@ -13,11 +13,20 @@ namespace AsyncScheduler.Restrictions
         /// Maximum number of parallel jobs
         /// </summary>
         public int MaximumParallelJobs { get; set; } = 1;
+        
+        /// <summary>
+        /// Exceptions which are not counted
+        /// </summary>
+        public ICollection<string> ExceptionList { get; set; } = new List<string>();
 
         /// <inheritdoc />
         public bool RestrictStart(string jobToStart, IEnumerable<string> runningJobs)
         {
-            return runningJobs.ToList().Count >= MaximumParallelJobs;
+            if (ExceptionList.Contains(jobToStart))
+            {
+                return false;
+            }
+            return runningJobs.Where(j => !ExceptionList.Contains(j)).ToList().Count >= MaximumParallelJobs;
         }
     }
 }
