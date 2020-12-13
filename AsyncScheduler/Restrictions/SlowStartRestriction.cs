@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using AsyncScheduler.History;
 
 namespace AsyncScheduler.Restrictions
 {
@@ -17,12 +16,12 @@ namespace AsyncScheduler.Restrictions
         /// <summary>
         /// Delay necessary for each job, before another job may be started.
         /// </summary>
-        public TimeSpan StartDelay { get; } = TimeSpan.FromSeconds(10);
+        public TimeSpan StartDelay { get; set; } = TimeSpan.FromSeconds(10);
         
         /// <summary>
         /// TimeSpan considered as startup phase where SlowStartRestriction is active
         /// </summary>
-        public TimeSpan StartupPhase { get; } = TimeSpan.FromMinutes(2);
+        public TimeSpan StartupPhase { get; set; } = TimeSpan.FromMinutes(2);
 
         /// <inheritdoc />
         public bool RestrictStart(string jobToStart, IEnumerable<string> runningJobs)

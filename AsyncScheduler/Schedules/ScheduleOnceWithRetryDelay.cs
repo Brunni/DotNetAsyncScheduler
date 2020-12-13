@@ -7,7 +7,7 @@ namespace AsyncScheduler.Schedules
     /// Schedule which executes task once without delay.
     /// On failed execution, execution is retried again and again with <see cref="RetryDelay"/>.
     /// </summary>
-    public class ScheduleOnceWithRetryDelay : ISchedule
+    public class ScheduleOnceWithRetryDelay : ISchedule, IScheduleWithPrio
     {
         /// <summary>
         /// Delay for retry after failed execution.
@@ -24,10 +24,13 @@ namespace AsyncScheduler.Schedules
                 {
                     return 0;
                 }
-                return 1;
+                return Priority;
             }
             else
                 return 0;
         }
+
+        /// <inheritdoc />
+        public int Priority { get; set; } = 1;
     }
 }
