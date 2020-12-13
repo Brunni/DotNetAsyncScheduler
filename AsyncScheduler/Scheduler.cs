@@ -100,7 +100,7 @@ namespace AsyncScheduler
             {
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    _logger.LogTrace("Checking for tasks ...");
+                    _logger.LogTrace("New Scheduler cycle: Running jobs: {runningJobs}. Checking for new jobs...", _runningJobs);
 
                     var priorityJobDictionary = JobManager.Jobs.Where(
                             j => !IsJobRunning(j.Key))
