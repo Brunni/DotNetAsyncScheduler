@@ -43,6 +43,17 @@ namespace AsyncSchedulerTest
             lastSuccessfulJobResult?.JobResult.Should().Be(JobResult.Success);
             lastSuccessfulJobResult?.JobKey.Should().Be(jobKey);
         }
+        
+        [Fact]
+        public async Task AddOneJob_ScheduleThrowsException_ShouldBeHandled()
+        {
+            _scheduler.JobManager.AddJob<SimpleJob, NotImplementedSchedule>();
+            await RunScheduler(TimeSpan.FromSeconds(0.5));
+            var jobKey = typeof(SimpleJob).FullName;
+            var lastSuccessfulJobResult = _scheduler.JobHistory.GetLastSuccessfulJobResult(jobKey);
+            lastSuccessfulJobResult.Should().BeNull();
+            _scheduler.JobHistory.GetLastJobResult(jobKey).Should().BeNull();
+        }
 
         [Fact]
         public async Task AddOneJob_ScheduleNever_QuickStartJob_ExecutesJobViaQuickStart()
@@ -186,7 +197,8 @@ namespace AsyncSchedulerTest
             await Task.Delay(schedulerTime).ContinueWith((t) => cancellationTokenSource.Cancel());
             var schedulerFinishTimeout = TimeSpan.FromSeconds(1);
             await Task.WhenAny(schedulerTask, Task.Delay(schedulerFinishTimeout));
-            // ReSharper restore MethodSupportsCancellation
+            cancellationTokenSource.Cancel();
+            await schedulerTask;
         }
     }
 }

@@ -187,9 +187,17 @@ namespace AsyncScheduler
 
             var jobHistoryEntry = JobHistory.GetLastJobResult(jobKey);
             var lastSuccessfulExecution = JobHistory.GetLastSuccessfulJobResult(jobKey);
-            var executionPriority = schedule.GetExecutionPriority(jobKey, jobHistoryEntry, lastSuccessfulExecution, _clock.GetNow());
-            _logger.LogTrace("Execution priority from scheduler for job {jobKey} is {priority}", jobKey, executionPriority);
-            return executionPriority;
+            try
+            {
+                var executionPriority = schedule.GetExecutionPriority(jobKey, jobHistoryEntry, lastSuccessfulExecution, _clock.GetNow());
+                _logger.LogTrace("Execution priority from scheduler for job {jobKey} is {priority}", jobKey, executionPriority);
+                return executionPriority;
+            }
+            catch (Exception e)
+            {
+                _logger.LogWarning(e, "Unable to get the execution priority for job {jobKey} from schedule {scheduleType}. Will be retried in next cycle.", jobKey, schedule.GetType());
+                return 0;
+            }
         }
 
         private ISchedule GetSchedule(string jobKey)
@@ -201,14 +209,21 @@ namespace AsyncScheduler
                 return null;
             }
 
-            var schedule = scheduleProvider.GetSchedule();
-            if (schedule == null)
+            try
             {
-                _logger.LogWarning("Schedule for job {jobKey} not available", jobKey);
+                var schedule = scheduleProvider.GetSchedule();
+                if (schedule == null)
+                {
+                    _logger.LogWarning("Schedule for job {jobKey} not available", jobKey);
+                    return null;
+                }
+                return schedule;
+            }
+            catch (Exception e)
+            {
+                _logger.LogWarning(e, "Unable to get schedule for job {jobKey} from ScheduleProvider {ScheduleProviderType}", jobKey, scheduleProvider.GetType());
                 return null;
             }
-
-            return schedule;
         }
 
         private bool IsJobRunning(string jobKey)
