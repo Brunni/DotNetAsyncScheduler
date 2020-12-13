@@ -117,6 +117,7 @@ There are several examples of schedule implementation available:
 * ScheduleOnceWithRetryDelay: Schedule immediately. Retry on failure with certain configurable delay
 * ScheduleEndless: Always re-schedule, when finished
 * IntervalSchedule: Schedule based on a `TimeSpan` interval
+* IntervalScheduleWithRetryDelay: Same as IntervalSchedule, but with retry for failed jobs
 * TimeSlotSchedule: Schedule based on a `Datetime` after which it should start
 
 ## Restrictions
