@@ -20,6 +20,14 @@ namespace AsyncSchedulerTest.Schedules
         }
         
         [Fact]
+        public void ShouldRunImmediatelyWithCustomPrio()
+        {
+            _schedule.Priority = 100;
+            _schedule.GetExecutionPriority(_jobKey, null, null,
+                DateTime.UtcNow).Should().Be(100);
+        }
+        
+        [Fact]
         public void NotRerunImmediatelyOnSuccess()
         {
             var success = new JobHistoryEntry(DateTime.UtcNow.Subtract(TimeSpan.FromMinutes(1)), _jobKey, JobResult.Success);

@@ -29,7 +29,7 @@ namespace AsyncScheduler.Schedules
         {
             if (lastExecution == null)
             {
-                return 1;
+                return Priority;
             }
 
             if (lastExecution.ExecutionTime + Interval < now)
