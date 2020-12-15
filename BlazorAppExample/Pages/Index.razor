@@ -3,11 +3,15 @@
 @using AsyncScheduler.History
 @using System.Globalization
 @using System.Threading
+@using Microsoft.Extensions.Logging
 @inject Scheduler Scheduler
+@inject ILogger<Index> Logger
 @implements IDisposable
 
 
 <h1>Job Schedules</h1>
+
+<div>@_lastQuickStartMessage</div>
 
 <br/>
 <button class="btn" @onclick="Refresh">Refresh</button>
@@ -33,6 +37,8 @@
 @code {
     readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
     private Task _refreshTask;
+
+    private string _lastQuickStartMessage;
 
     protected override void OnInitialized()
     {
@@ -62,9 +68,15 @@
         return Scheduler.JobHistory.GetLastJobResult(jobKey);
     }
 
-    private void Schedule(in KeyValuePair<string, Type> job)
+    private void Schedule(KeyValuePair<string, Type> job)
     {
-        Scheduler.QuickStartQueue.Enqueue(job.Key);
+        Logger.LogInformation("Quick start triggered {job}", job);
+        Scheduler.QuickStart(job.Key)
+            .ContinueWith(t =>
+            {
+                Logger.LogInformation("Quick start finished {result}", t.Result);
+                return _lastQuickStartMessage = "Quick start of " + job.Key + ": " + t.Result;
+            });
     }
 
     private void Refresh()
@@ -74,7 +86,7 @@
 
     public void Dispose()
     {
-        _cancellationTokenSource?.Dispose(); 
+        _cancellationTokenSource?.Dispose();
     }
 
 }

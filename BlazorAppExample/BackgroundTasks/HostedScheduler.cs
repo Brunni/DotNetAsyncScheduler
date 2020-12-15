@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using AsyncScheduler;
+using AsyncScheduler.Restrictions;
 using AsyncScheduler.Schedules;
 using Microsoft.Extensions.Hosting;
 
@@ -25,6 +26,8 @@ namespace BlazorAppExample.BackgroundTasks
             _scheduler.JobManager.AddJob<EndlessLoopTask, ScheduleOnce>();
             _scheduler.JobManager.AddJob<SimpleTask>(new IntervalSchedule(TimeSpan.FromSeconds(20)));
             _scheduler.JobManager.AddJob<SimpleTask2, ScheduleNever>();
+            _scheduler.JobManager.AddJob<RestrictedTask, ScheduleNever>();
+            _scheduler.AddRestriction(new MutexRestriction(typeof(RestrictedTask), typeof(EndlessLoopTask)));
 
             _schedulerTask = _scheduler.Start(_cancellationTokenSource.Token);
             return Task.CompletedTask;

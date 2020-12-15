@@ -34,7 +34,8 @@ namespace BlazorAppExample
             services.AddTransient<EndlessLoopTask>();
             services.AddTransient<SimpleTask>();
             services.AddTransient<SimpleTask2>();
-            //services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(Log.Logger));
+            services.AddTransient<RestrictedTask>();
+            // services.AddLogging(loggingBuilder => loggingBuilder.AddSerilog(Log.Logger));
             //services.AddHostedService<HostedScheduler>();
         }
 

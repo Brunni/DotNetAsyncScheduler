@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AsyncScheduler.History;
+using AsyncScheduler.QuickStart;
 using AsyncScheduler.Restrictions;
 using AsyncScheduler.Schedules;
 using AsyncScheduler.Utils;
@@ -65,17 +66,29 @@ namespace AsyncScheduler
         /// Jobs added here are executed in the next loop (when no restrictions apply).
         /// Job is removed from queue, when executed or restrictions apply during execution.
         /// </summary>
-        public ConcurrentQueue<string> QuickStartQueue { get; } = new ConcurrentQueue<string>();
+        private ConcurrentQueue<QuickStartRequest> QuickStartQueue { get; } = new ConcurrentQueue<QuickStartRequest>();
 
         /// <summary>
         /// Jobs added here are executed in the next loop (when no restrictions apply).
-        /// Job is removed from queue, when executed or restrictions apply during execution.
         /// </summary>
+        /// <returns>task which resolves when job is started to true, otherwise (e.g. restrictions) to false</returns>
         /// <remarks>Job needs to exist in Job list already.</remarks>
         /// <typeparam name="T">Job</typeparam>
-        public void QuickStart<T>() where T : IJob
+        public Task<QuickStartResult> QuickStart<T>(CancellationToken cancellationToken = default) where T : IJob
         {
-            QuickStartQueue.Enqueue(typeof(T).FullName);
+            return QuickStart(typeof(T).FullName, cancellationToken);
+        }
+
+        /// <summary>
+        /// Jobs added here are executed in the next loop (when no restrictions apply).
+        /// </summary>
+        /// <returns>task which resolves when job is started to true, otherwise (e.g. restrictions) to false</returns>
+        /// <remarks>Job needs to exist in Job list already.</remarks>
+        public Task<QuickStartResult> QuickStart(string jobKey, CancellationToken cancellationToken = default)
+        {
+            var quickStartRequest = new QuickStartRequest(jobKey, cancellationToken);
+            QuickStartQueue.Enqueue(quickStartRequest);
+            return quickStartRequest.CompletionTask;
         }
 
         /// <summary>
@@ -102,13 +115,13 @@ namespace AsyncScheduler
                 {
                     _logger.LogTrace("New Scheduler cycle: Running jobs: {runningJobs}. Checking for new jobs...", _runningJobs);
 
+                    ExecuteQuickStarts(cancellationToken);
+
                     var priorityJobDictionary = JobManager.Jobs.Where(
                             j => !IsJobRunning(j.Key))
                         .Select(j => new KeyValuePair<string, int>(j.Key, GetJobExecutionPriority(j.Key)))
                         .Where(jp => jp.Value > 0)
                         .ToDictionary(jp => jp.Key, jp => jp.Value);
-
-                    AddQuickStartJobs(priorityJobDictionary);
 
                     var jobQueue = JobManager.Jobs
                         .Where(pair => priorityJobDictionary.ContainsKey(pair.Key))
@@ -150,22 +163,31 @@ namespace AsyncScheduler
             }
         }
 
-        private void AddQuickStartJobs(Dictionary<string, int> priorityJobDictionary)
+        private void ExecuteQuickStarts(CancellationToken cancellationToken)
         {
-            var i = 0;
-            while (QuickStartQueue.TryDequeue(out var entry))
+            while (QuickStartQueue.TryDequeue(out var quickStartRequest))
             {
-                if (!priorityJobDictionary.ContainsKey(entry) && !IsJobRunning(entry))
+                var resultJobKey = quickStartRequest.JobKey;
+                if (resultJobKey == null)
                 {
-                    _logger.LogInformation("Job {jobKey} is added as highest priority as it was manually scheduled", entry);
-                    // Add job with highest priority
-                    priorityJobDictionary.Add(entry, int.MaxValue - i);
-                    i++;
+                    continue;
                 }
+
+                if (_runningJobs.ContainsKey(resultJobKey))
+                {
+                    quickStartRequest.MarkExecution(QuickStartResult.AlreadyRunning);
+                    continue;
+                }
+
+                var job = JobManager.Jobs.Single(j => j.Key == resultJobKey);
+                var success = CheckRestrictionsAndStartJob(cancellationToken, job);
+                _logger.LogInformation("Quick start of {jobKey} was successful: {started}", job.Key, success);
+                quickStartRequest.MarkExecution(success ? QuickStartResult.Started : QuickStartResult.Restricted);
+                cancellationToken.ThrowIfCancellationRequested();
             }
         }
 
-        private void CheckRestrictionsAndStartJob(CancellationToken cancellationToken, KeyValuePair<string, Type> job)
+        private bool CheckRestrictionsAndStartJob(CancellationToken cancellationToken, KeyValuePair<string, Type> job)
         {
             using (_logger.BeginScope("job", job.Key))
             {
@@ -173,10 +195,11 @@ namespace AsyncScheduler
                 if (IsStartRestricted(job.Key))
                 {
                     _logger.LogDebug("Job {jobKey} not started because of restrictions", job.Key);
-                    return;
+                    return false;
                 }
 
                 StartJob(cancellationToken, job);
+                return true;
             }
         }
 
@@ -217,6 +240,7 @@ namespace AsyncScheduler
                     _logger.LogWarning("Schedule for job {jobKey} not available", jobKey);
                     return null;
                 }
+
                 return schedule;
             }
             catch (Exception e)

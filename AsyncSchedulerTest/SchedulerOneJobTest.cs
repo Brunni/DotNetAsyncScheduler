@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using AsyncScheduler;
 using AsyncScheduler.History;
 using AsyncScheduler.JobStorage;
+using AsyncScheduler.Restrictions;
 using AsyncScheduler.Schedules;
 using AsyncSchedulerTest.TestData;
 using AsyncSchedulerTest.TestUtils;
@@ -61,7 +62,7 @@ namespace AsyncSchedulerTest
             _scheduler.LoopDelay = TimeSpan.FromMilliseconds(100);
             _scheduler.JobManager.AddJob<SimpleJob, ScheduleNever>();
             var runSchedulerTask = RunScheduler(TimeSpan.FromSeconds(0.5));
-            _scheduler.QuickStart<SimpleJob>();
+            var quickStartTask = _scheduler.QuickStart<SimpleJob>();
             await runSchedulerTask;
 
             var jobKey = typeof(SimpleJob).FullName;
@@ -70,9 +71,24 @@ namespace AsyncSchedulerTest
             _scheduler.JobHistory.GetLastJobResult(jobKey).Should()
                 .BeSameAs(lastSuccessfulJobResult);
 
+            (await quickStartTask).Should().Be(QuickStartResult.Started);
+
             lastSuccessfulJobResult?.ExecutionTime.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(2));
             lastSuccessfulJobResult?.JobResult.Should().Be(JobResult.Success);
             lastSuccessfulJobResult?.JobKey.Should().Be(jobKey);
+        }
+        
+        [Fact]
+        public async Task AddOneJob_ScheduleNever_QuickStartJob_JobNotExecutedByQuickStartDueToRestriction()
+        {
+            _scheduler.LoopDelay = TimeSpan.FromMilliseconds(100);
+            _scheduler.JobManager.AddJob<SimpleJob, ScheduleNever>();
+            _scheduler.AddRestriction(new ConcurrentJobRestriction(){MaximumParallelJobs = 0});
+            var runSchedulerTask = RunScheduler(TimeSpan.FromSeconds(0.5));
+            var quickStartResult = await _scheduler.QuickStart<SimpleJob>();
+            await runSchedulerTask;
+
+            quickStartResult.Should().Be(QuickStartResult.Restricted);
         }
 
         [Fact]
