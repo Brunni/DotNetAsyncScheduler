@@ -6,10 +6,12 @@ namespace AsyncSchedulerTest.TestUtils
     public class TestActivator : IServiceProvider
     {
         private readonly SimpleJob _simpleJobInstance;
+        private readonly ShutdownJob _shutdownJobInstance;
 
-        public TestActivator(SimpleJob simpleJobInstance = null)
+        public TestActivator(SimpleJob simpleJobInstance = null, ShutdownJob shutdownJobInstance = null)
         {
             _simpleJobInstance = simpleJobInstance;
+            _shutdownJobInstance = shutdownJobInstance;
         }
 
         public object GetService(Type serviceType)
@@ -24,6 +26,11 @@ namespace AsyncSchedulerTest.TestUtils
             if (serviceType == typeof(SimpleJob) && _simpleJobInstance != null)
             {
                 return _simpleJobInstance;
+            }
+            
+            if (serviceType == typeof(ShutdownJob) && _shutdownJobInstance != null)
+            {
+                return _shutdownJobInstance;
             }
             return Activator.CreateInstance(serviceType);
         }

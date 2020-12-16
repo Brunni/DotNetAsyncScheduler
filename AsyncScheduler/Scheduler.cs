@@ -161,6 +161,55 @@ namespace AsyncScheduler
                     }
                 }
             }
+
+            await ExecuteShutdownMethods();
+        }
+
+        private async Task ExecuteShutdownMethods()
+        {
+            var shutdownTasksWithErrorHandler = JobManager.Jobs
+                .Where(j => typeof(IShutdownJob).IsAssignableFrom(j.Value))
+                .Select(pair => new Tuple<string, Task<string>>(pair.Key, ExecuteShutdownJob(pair)))
+                .Select(t => t.Item2.ContinueWith(task => HandleShutdownFinished(t.Item1, task)));
+
+            await Task.WhenAll(shutdownTasksWithErrorHandler);
+        }
+
+        private async Task HandleShutdownFinished(string jobKey, Task<string> shutdownTask)
+        {
+            try
+            {
+                var result = await shutdownTask;
+                _logger.LogInformation("Shutdown job for {jobKey} finished with result: {result}", jobKey, result);
+            }
+            catch (Exception e)
+            {
+                _logger.LogWarning(e, "Unable to shutdown job {jobKey}", jobKey);
+            }
+        }
+
+        private async Task<string> ExecuteShutdownJob(KeyValuePair<string, Type> job)
+        {
+            using (_logger.BeginScope("job", job.Key))
+            {
+                var jobInstance = CreateJobInstance(job);
+                if (jobInstance == null)
+                {
+                    _logger.LogWarning("Cannot create service! Skipping job {jobKey}", job.Key);
+                    return "Job cannot be initialized";
+                }
+
+                try
+                {
+                    var shutdown = ((IShutdownJob) jobInstance).Shutdown();
+                    return await shutdown;
+                }
+                catch (Exception e)
+                {
+                    _logger.LogWarning(e, "Unable to shutdown job {jobKey}", job.Key);
+                    return "Shutdown of job not executed";
+                }
+            }
         }
 
         private void ExecuteQuickStarts(CancellationToken cancellationToken)
