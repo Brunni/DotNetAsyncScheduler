@@ -388,7 +388,17 @@ namespace AsyncScheduler
             }
             finally
             {
-                _runningJobs.TryRemove(jobKey, out _);
+                bool removed;
+                do
+                {
+                    removed = _runningJobs.TryRemove(jobKey, out _);
+                    if (!removed)
+                    {
+                        _logger.LogWarning("Unable to remove running job from ConcurrentDictionary: {jobKey} ... Retry...", jobKey);
+                        await Task.Delay(TimeSpan.FromMilliseconds(50));
+                    }
+                } while (removed == false);
+
                 if (task is IDisposable disposable)
                 {
                     disposable.Dispose();
