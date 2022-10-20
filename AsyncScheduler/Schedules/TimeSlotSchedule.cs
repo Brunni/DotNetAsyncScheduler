@@ -8,12 +8,12 @@ namespace AsyncScheduler.Schedules
     /// On failure task is immediately restarted.
     /// A similar implementation could be done, where the StartTime is automatically fetched from Database or Filesystem.
     /// </summary>
-    public class TimeSlotSchedule : ISchedule, IScheduleWithPrio
+    public class TimeSlotSchedule : IScheduleWithPrio
     {
         /// <summary>
         /// Earliest time for the task to start.
         /// </summary>
-        public DateTime StartTime { get; set; }
+        public DateTimeOffset StartTime { get; set; }
 
         /// <summary>
         /// If task has not been successful executed in this time span, it is not triggered.
@@ -22,10 +22,10 @@ namespace AsyncScheduler.Schedules
         public TimeSpan SlotTime { get; set; } = TimeSpan.FromMinutes(10);
 
         /// <inheritdoc />
-        public int GetExecutionPriority(string jobKey, IJobHistoryEntry lastExecution, IJobHistoryEntry lastSuccessfulExecution,
-            DateTime now)
+        public int GetExecutionPriority(string jobKey, IJobHistoryEntry? lastExecution, IJobHistoryEntry? lastSuccessfulExecution,
+            DateTimeOffset now)
         {
-            var lastExecutionTime = lastSuccessfulExecution?.ExecutionTime ?? DateTime.MinValue;
+            var lastExecutionTime = lastSuccessfulExecution?.ExecutionTime ?? DateTimeOffset.MinValue;
             if (now > StartTime && lastExecutionTime < StartTime && now < StartTime + SlotTime)
             {
                 return Priority;

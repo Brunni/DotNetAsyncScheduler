@@ -1,6 +1,4 @@
-﻿using JetBrains.Annotations;
-
-namespace AsyncScheduler.History
+﻿namespace AsyncScheduler.History
 {
     /// <summary>
     /// Interface for accessing the history and results of finished jobs.
@@ -18,15 +16,13 @@ namespace AsyncScheduler.History
         /// </summary>
         /// <param name="jobKey">key of the job</param>
         /// <returns>null, if no finished execution, yet</returns>
-        [CanBeNull]
-        IJobHistoryEntry GetLastJobResult(string jobKey);
+        IJobHistoryEntry? GetLastJobResult(string jobKey);
         
         /// <summary>
         /// Retrieve last result of a successful job execution.
         /// </summary>
         /// <param name="jobKey">key of the job</param>
         /// <returns>null, if no successful execution, yet</returns>
-        [CanBeNull]
-        IJobHistoryEntry GetLastSuccessfulJobResult(string jobKey);
+        IJobHistoryEntry? GetLastSuccessfulJobResult(string jobKey);
     }
 }

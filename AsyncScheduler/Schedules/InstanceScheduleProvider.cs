@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace AsyncScheduler.Schedules
+﻿namespace AsyncScheduler.Schedules
 {
     /// <summary>
     /// A ScheduleProvider for a given schedule instance

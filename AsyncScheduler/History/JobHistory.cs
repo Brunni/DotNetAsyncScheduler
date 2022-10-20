@@ -1,5 +1,4 @@
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 
 namespace AsyncScheduler.History
 {
@@ -8,26 +7,24 @@ namespace AsyncScheduler.History
     /// </summary>
     public class JobHistory : IJobHistory
     {
-        private readonly List<IJobHistoryEntry> _jobHistory = new List<IJobHistoryEntry>();
+        // private readonly List<IJobHistoryEntry>  _jobHistory = new();
 
         /// <summary>
         /// Last execution for each job
         /// </summary>
         /// <remarks>Allows efficient access for scheduling</remarks>
-        private readonly ConcurrentDictionary<string, IJobHistoryEntry> _lastExecutions =
-            new ConcurrentDictionary<string, IJobHistoryEntry>();
+        private readonly ConcurrentDictionary<string, IJobHistoryEntry> _lastExecutions = new();
 
         /// <summary>
         /// Last successful execution for each job
         /// </summary>
         /// <remarks>Allows efficient access for scheduling</remarks>
-        private readonly ConcurrentDictionary<string, IJobHistoryEntry> _lastSuccessfulExecutions =
-            new ConcurrentDictionary<string, IJobHistoryEntry>();
+        private readonly ConcurrentDictionary<string, IJobHistoryEntry> _lastSuccessfulExecutions = new();
 
         /// <inheritdoc />
         public void Add(IJobHistoryEntry historyEntry)
         {
-            _jobHistory.Add(historyEntry);
+            // _jobHistory.Add(historyEntry);
             _lastExecutions[historyEntry.JobKey] = historyEntry;
             if (historyEntry.JobResult == JobResult.Success)
             {
@@ -36,14 +33,14 @@ namespace AsyncScheduler.History
         }
 
         /// <inheritdoc />
-        public IJobHistoryEntry GetLastJobResult(string jobKey)
+        public IJobHistoryEntry? GetLastJobResult(string jobKey)
         {
             _lastExecutions.TryGetValue(jobKey, out var entry);
             return entry;
         }
 
         /// <inheritdoc />
-        public IJobHistoryEntry GetLastSuccessfulJobResult(string jobKey)
+        public IJobHistoryEntry? GetLastSuccessfulJobResult(string jobKey)
         {
             _lastSuccessfulExecutions.TryGetValue(jobKey, out var entry);
             return entry;

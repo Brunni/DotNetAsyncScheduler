@@ -5,6 +5,9 @@
     /// </summary>
     public enum QuickStartResult
     {
+        /// <summary>
+        /// Default value. Unused.
+        /// </summary>
         Unknown = 0,
         
         /// <summary>

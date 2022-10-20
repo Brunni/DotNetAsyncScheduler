@@ -23,12 +23,12 @@ namespace AsyncScheduler
     /// When jobs should be executed, they are ordered by their execution policy, then each is checked for restrictions and started.</remarks>
     public class Scheduler
     {
-        private readonly ConcurrentDictionary<string, Task> _runningJobs = new ConcurrentDictionary<string, Task>();
+        private readonly ConcurrentDictionary<string, Task> _runningJobs = new();
 
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<Scheduler> _logger;
         private readonly ISchedulerClock _clock;
-        private readonly List<IJobStartRestriction> _jobRestrictions = new List<IJobStartRestriction>();
+        private readonly List<IJobStartRestriction> _jobRestrictions = new();
 
         /// <summary>
         /// Determines the delay between each run, where the schedules are checked.
@@ -66,7 +66,7 @@ namespace AsyncScheduler
         /// Jobs added here are executed in the next loop (when no restrictions apply).
         /// Job is removed from queue, when executed or restrictions apply during execution.
         /// </summary>
-        private ConcurrentQueue<QuickStartRequest> QuickStartQueue { get; } = new ConcurrentQueue<QuickStartRequest>();
+        private ConcurrentQueue<QuickStartRequest> QuickStartQueue { get; } = new();
 
         /// <summary>
         /// Jobs added here are executed in the next loop (when no restrictions apply).
@@ -141,7 +141,7 @@ namespace AsyncScheduler
                 _logger.LogDebug(e, "Execution loop was cancelled by CancellationToken");
             }
 
-            Task finishUpTask = null;
+            Task? finishUpTask = null;
             try
             {
                 _logger.LogInformation("Scheduler stopped. Waiting for running jobs to finish: {jobCount}",
@@ -179,7 +179,7 @@ namespace AsyncScheduler
         {
             try
             {
-                var result = await shutdownTask;
+                string result = await shutdownTask;
                 _logger.LogInformation("Shutdown job for {jobKey} finished with result: {result}", jobKey, result);
             }
             catch (Exception e)
@@ -216,7 +216,7 @@ namespace AsyncScheduler
         {
             while (QuickStartQueue.TryDequeue(out var quickStartRequest))
             {
-                var resultJobKey = quickStartRequest.JobKey;
+                string? resultJobKey = quickStartRequest.JobKey;
                 if (resultJobKey == null)
                 {
                     continue;
@@ -229,7 +229,7 @@ namespace AsyncScheduler
                 }
 
                 var job = JobManager.Jobs.Single(j => j.Key == resultJobKey);
-                var success = CheckRestrictionsAndStartJob(cancellationToken, job);
+                bool success = CheckRestrictionsAndStartJob(cancellationToken, job);
                 _logger.LogInformation("Quick start of {jobKey} was successful: {started}", job.Key, success);
                 quickStartRequest.MarkExecution(success ? QuickStartResult.Started : QuickStartResult.Restricted);
                 cancellationToken.ThrowIfCancellationRequested();
@@ -261,7 +261,7 @@ namespace AsyncScheduler
             var lastSuccessfulExecution = JobHistory.GetLastSuccessfulJobResult(jobKey);
             try
             {
-                var executionPriority = schedule.GetExecutionPriority(jobKey, jobHistoryEntry, lastSuccessfulExecution, _clock.GetNow());
+                int executionPriority = schedule.GetExecutionPriority(jobKey, jobHistoryEntry, lastSuccessfulExecution, _clock.GetNow());
                 _logger.LogTrace("Execution priority from scheduler for job {jobKey} is {priority}", jobKey, executionPriority);
                 return executionPriority;
             }
@@ -272,7 +272,7 @@ namespace AsyncScheduler
             }
         }
 
-        private ISchedule GetSchedule(string jobKey)
+        private ISchedule? GetSchedule(string jobKey)
         {
             JobManager.Schedules.TryGetValue(jobKey, out var scheduleProvider);
             if (scheduleProvider == null)
@@ -309,7 +309,7 @@ namespace AsyncScheduler
             var runningJobs = _runningJobs.Where(j => j.Value != null).Select(j => j.Key);
             return _jobRestrictions.Select(restriction =>
                 {
-                    var restrictStart = restriction.RestrictStart(jobKey, runningJobs);
+                    bool restrictStart = restriction.RestrictStart(jobKey, runningJobs);
                     if (restrictStart)
                     {
                         _logger.LogTrace("JobStartRestriction for {jobKey} detected by {restriction}", jobKey, restriction.GetType());
@@ -350,8 +350,7 @@ namespace AsyncScheduler
         }
 
         [MustUseReturnValue]
-        [CanBeNull]
-        private IJob CreateJobInstance(KeyValuePair<string, Type> job)
+        private IJob? CreateJobInstance(KeyValuePair<string, Type> job)
         {
             try
             {
@@ -372,7 +371,7 @@ namespace AsyncScheduler
         {
             try
             {
-                var result = await task;
+                object result = await task;
                 _logger.LogInformation("Job {jobKey} finished: {result}", jobKey, result);
                 JobHistory.Add(new JobHistoryEntry(_clock.GetNow(), jobKey, JobResult.Success, result));
             }

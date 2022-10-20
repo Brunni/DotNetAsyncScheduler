@@ -8,7 +8,7 @@ namespace AsyncSchedulerTest.Schedules
 {
     public class IntervalScheduleWithRetryDelayTest
     {
-        private readonly IntervalScheduleWithRetryDelay _schedule = new IntervalScheduleWithRetryDelay(TimeSpan.FromMinutes(2));
+        private readonly IntervalScheduleWithRetryDelay _schedule = new(TimeSpan.FromMinutes(2));
 
         private readonly string _jobKey = "keyNotUsed";
 

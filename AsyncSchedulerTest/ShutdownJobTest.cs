@@ -37,10 +37,10 @@ namespace AsyncSchedulerTest
 
         private async Task RunScheduler(TimeSpan schedulerTime)
         {
-            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+            var cancellationTokenSource = new CancellationTokenSource();
             var schedulerTask = _scheduler.Start(cancellationTokenSource.Token);
             // ReSharper disable MethodSupportsCancellation
-            await Task.Delay(schedulerTime).ContinueWith((t) => cancellationTokenSource.Cancel());
+            await Task.Delay(schedulerTime).ContinueWith(_ => cancellationTokenSource.Cancel());
             var schedulerFinishTimeout = TimeSpan.FromSeconds(1);
             await Task.WhenAny(schedulerTask, Task.Delay(schedulerFinishTimeout));
             cancellationTokenSource.Cancel();

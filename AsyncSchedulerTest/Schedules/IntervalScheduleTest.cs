@@ -8,7 +8,7 @@ namespace AsyncSchedulerTest.Schedules
 {
     public class IntervalScheduleTest
     {
-        private readonly IntervalSchedule _schedule = new IntervalSchedule(TimeSpan.FromMinutes(2));
+        private readonly IntervalSchedule _schedule = new(TimeSpan.FromMinutes(2));
 
         private readonly string _jobKey = "keyNotUsed";
 

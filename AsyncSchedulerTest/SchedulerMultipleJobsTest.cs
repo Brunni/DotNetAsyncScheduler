@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AsyncScheduler;
-using AsyncScheduler.History;
 using AsyncScheduler.JobStorage;
 using AsyncScheduler.Restrictions;
 using AsyncScheduler.Schedules;
@@ -38,15 +36,16 @@ namespace AsyncSchedulerTest
             _scheduler.JobManager.AddJob<NotImplementedJob, ScheduleOnce>();
             _scheduler.JobManager.AddJob<AsyncExceptionJob, ScheduleOnce>();
             await RunScheduler(TimeSpan.FromSeconds(1));
-            var jobKey = typeof(SimpleJob).FullName;
+            string jobKey = typeof(SimpleJob).FullName!;
             var lastSuccessfulJobResult = _scheduler.JobHistory.GetLastSuccessfulJobResult(jobKey);
             lastSuccessfulJobResult.Should().NotBeNull();
 
-            _scheduler.JobHistory.GetLastSuccessfulJobResult(typeof(NotImplementedJob).FullName).Should().BeNull();
-            _scheduler.JobHistory.GetLastSuccessfulJobResult(typeof(AsyncExceptionJob).FullName).Should().BeNull();
+            _scheduler.JobHistory.GetLastSuccessfulJobResult(typeof(NotImplementedJob).FullName!).Should().BeNull();
+            _scheduler.JobHistory.GetLastSuccessfulJobResult(typeof(AsyncExceptionJob).FullName!).Should().BeNull();
 
-            _scheduler.JobHistory.GetLastJobResult(typeof(NotImplementedJob).FullName).Should().NotBeNull();
-            _scheduler.JobHistory.GetLastJobResult(typeof(AsyncExceptionJob).FullName).Should().NotBeNull();
+            _scheduler.JobHistory.GetLastJobResult(typeof(NotImplementedJob).FullName!).Should().NotBeNull();
+            _scheduler.JobHistory.GetLastJobResult(typeof(AsyncExceptionJob).FullName!).Should().NotBeNull();
+            _scheduler.CurrentlyRunningJobs.Should().BeEmpty();
         }
 
         [Fact]
@@ -62,8 +61,8 @@ namespace AsyncSchedulerTest
             await RunScheduler(TimeSpan.FromSeconds(1));
 
             // Only one job should have been executed:
-            var sj = _scheduler.JobHistory.GetLastJobResult(typeof(SimpleJob).FullName);
-            var aej = _scheduler.JobHistory.GetLastJobResult(typeof(AsyncExceptionJob).FullName);
+            var sj = _scheduler.JobHistory.GetLastJobResult(typeof(SimpleJob).FullName!);
+            var aej = _scheduler.JobHistory.GetLastJobResult(typeof(AsyncExceptionJob).FullName!);
 
             var jobHistoryEntries = new[] {sj, aej};
             jobHistoryEntries.Should().ContainSingle(e => e != null);
@@ -73,10 +72,10 @@ namespace AsyncSchedulerTest
 
         private async Task RunScheduler(TimeSpan schedulerTime)
         {
-            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+            var cancellationTokenSource = new CancellationTokenSource();
             var schedulerTask = _scheduler.Start(cancellationTokenSource.Token);
             // ReSharper disable MethodSupportsCancellation
-            await Task.Delay(schedulerTime).ContinueWith((t) => cancellationTokenSource.Cancel());
+            await Task.Delay(schedulerTime).ContinueWith(_ => cancellationTokenSource.Cancel());
             var schedulerFinishTimeout = TimeSpan.FromSeconds(1);
             await Task.WhenAny(schedulerTask, Task.Delay(schedulerFinishTimeout));
             // ReSharper restore MethodSupportsCancellation

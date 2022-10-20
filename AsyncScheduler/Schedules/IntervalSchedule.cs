@@ -6,7 +6,7 @@ namespace AsyncScheduler.Schedules
     /// <summary>
     /// Trigger the job immediately and then after the given timespan expired. 
     /// </summary>
-    public class IntervalSchedule : ISchedule, IScheduleWithPrio
+    public class IntervalSchedule : IScheduleWithPrio
     {
         /// <summary>
         /// Create interval schedule with the given interval
@@ -23,9 +23,9 @@ namespace AsyncScheduler.Schedules
         public TimeSpan Interval { get; set; }
 
         /// <inheritdoc />
-        public int GetExecutionPriority(string jobKey, IJobHistoryEntry lastExecution,
-            IJobHistoryEntry lastSuccessfulExecution,
-            DateTime now)
+        public int GetExecutionPriority(string jobKey, IJobHistoryEntry? lastExecution,
+            IJobHistoryEntry? lastSuccessfulExecution,
+            DateTimeOffset now)
         {
             if (lastExecution == null)
             {
@@ -35,7 +35,7 @@ namespace AsyncScheduler.Schedules
             if (lastExecution.ExecutionTime + Interval < now)
             {
                 var delay = now - (lastExecution.ExecutionTime + Interval);
-                var delayTotalMinutes = (int) delay.TotalMinutes * Priority;
+                int delayTotalMinutes = (int) delay.TotalMinutes * Priority;
                 return Math.Max(delayTotalMinutes, Priority);
             }
 

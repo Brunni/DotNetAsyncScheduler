@@ -6,11 +6,11 @@ namespace AsyncScheduler.Schedules
     /// <summary>
     /// Simple schedule to execute task once without delay. On failure no rescheduling.
     /// </summary>
-    public class ScheduleOnce : ISchedule, IScheduleWithPrio
+    public class ScheduleOnce : IScheduleWithPrio
     {
         /// <inheritdoc />
-        public int GetExecutionPriority(string jobKey, IJobHistoryEntry lastExecution, IJobHistoryEntry lastSuccessfulExecution,
-            DateTime now)
+        public int GetExecutionPriority(string jobKey, IJobHistoryEntry? lastExecution, IJobHistoryEntry? lastSuccessfulExecution,
+            DateTimeOffset now)
         {
             return lastExecution == null ? Priority : 0;
         }

@@ -2,7 +2,6 @@
 using System.Collections.ObjectModel;
 using AsyncScheduler.JobStorage;
 using AsyncScheduler.Schedules;
-using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 
 namespace AsyncScheduler
@@ -30,13 +29,13 @@ namespace AsyncScheduler
         /// <summary>
         /// Read access Jobs
         /// </summary>
-        public ReadOnlyDictionary<string, Type> Jobs => new ReadOnlyDictionary<string, Type>(_jobStorage.Jobs);
+        public ReadOnlyDictionary<string, Type> Jobs => new(_jobStorage.Jobs);
 
         /// <summary>
         /// Read access Schedules
         /// </summary>
         public ReadOnlyDictionary<string, IScheduleProvider> Schedules =>
-            new ReadOnlyDictionary<string, IScheduleProvider>(_jobStorage.Schedules);
+            new(_jobStorage.Schedules);
 
         /// <summary>
         /// Adds a job.
@@ -55,7 +54,7 @@ namespace AsyncScheduler
         /// </summary>
         /// <param name="schedule">schedule</param>
         /// <typeparam name="TJob">Job Type</typeparam>
-        public void AddJob<TJob>([NotNull] ISchedule schedule) where TJob : IJob
+        public void AddJob<TJob>(ISchedule schedule) where TJob : IJob
         {
             AddJob<TJob>(new InstanceScheduleProvider(schedule));
         }
@@ -65,7 +64,7 @@ namespace AsyncScheduler
         /// </summary>
         /// <param name="scheduleProvider">provider/factory for schedule</param>
         /// <typeparam name="TJob">job type</typeparam>
-        public void AddJob<TJob>([NotNull] IScheduleProvider scheduleProvider) where TJob : IJob
+        public void AddJob<TJob>(IScheduleProvider scheduleProvider) where TJob : IJob
         {
             AddOrUpdateJobInternal<TJob>(scheduleProvider, false, true);
             _logger.LogInformation("Job {jobKey} was added", typeof(TJob));
@@ -89,7 +88,7 @@ namespace AsyncScheduler
         /// </summary>
         /// <param name="schedule">new schedule</param>
         /// <typeparam name="TJob">Job Type</typeparam>
-        public void UpdateSchedule<TJob>([NotNull] ISchedule schedule) where TJob : IJob
+        public void UpdateSchedule<TJob>(ISchedule schedule) where TJob : IJob
         {
             UpdateSchedule<TJob>(new InstanceScheduleProvider(schedule));
         }
@@ -99,7 +98,7 @@ namespace AsyncScheduler
         /// </summary>
         /// <param name="scheduleProvider">new ScheduleProvider</param>
         /// <typeparam name="TJob">Job Type</typeparam>
-        public void UpdateSchedule<TJob>([NotNull] IScheduleProvider scheduleProvider) where TJob : IJob
+        public void UpdateSchedule<TJob>(IScheduleProvider scheduleProvider) where TJob : IJob
         {
             AddOrUpdateJobInternal<TJob>(scheduleProvider, true, false);
             _logger.LogInformation("Schedule for job {jobKey} was updated", typeof(TJob));
@@ -110,7 +109,7 @@ namespace AsyncScheduler
         /// </summary>
         /// <param name="scheduleProvider">ScheduleProvider</param>
         /// <typeparam name="TJob">Job Type</typeparam>
-        public void AddOrUpdate<TJob>([NotNull] IScheduleProvider scheduleProvider) where TJob : IJob
+        public void AddOrUpdate<TJob>(IScheduleProvider scheduleProvider) where TJob : IJob
         {
             AddOrUpdateJobInternal<TJob>(scheduleProvider, true, true);
         }

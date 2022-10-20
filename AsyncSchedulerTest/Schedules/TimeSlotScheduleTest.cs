@@ -8,13 +8,13 @@ namespace AsyncSchedulerTest.Schedules
 {
     public class TimeSlotScheduleTest
     {
-        private readonly TimeSlotSchedule _timeSlotSchedule = new TimeSlotSchedule
+        private readonly TimeSlotSchedule _timeSlotSchedule = new()
         {
             StartTime = StartTime,
             SlotTime = TimeSpan.FromMinutes(10)
         };
 
-        private static readonly DateTime StartTime = new DateTime(2020, 8, 2, 20, 00, 00);
+        private static readonly DateTime StartTime = new(2020, 8, 2, 20, 00, 00);
         private readonly string _jobKey = "keyNotUsed";
 
         [Fact]

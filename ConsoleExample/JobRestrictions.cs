@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using AsyncScheduler;
 using AsyncScheduler.Restrictions;
 
 namespace ConsoleExample

@@ -19,7 +19,7 @@
 
 <h2>Running Jobs</h2>
 <ul>
-    @foreach (var jobKey in Scheduler.CurrentlyRunningJobs)
+    @foreach (string jobKey in Scheduler.CurrentlyRunningJobs)
     {
         <li>Job: @jobKey</li>
     }

@@ -6,11 +6,11 @@ namespace AsyncScheduler.Schedules
     /// <summary>
     /// Always run the task (when it is not running anymore).
     /// </summary>
-    public class ScheduleEndless : ISchedule, IScheduleWithPrio
+    public class ScheduleEndless : IScheduleWithPrio
     {
         /// <inheritdoc />
-        public int GetExecutionPriority(string jobKey, IJobHistoryEntry lastExecution, IJobHistoryEntry lastSuccessfulExecution,
-            DateTime now)
+        public int GetExecutionPriority(string jobKey, IJobHistoryEntry? lastExecution, IJobHistoryEntry? lastSuccessfulExecution,
+            DateTimeOffset now)
         {
             return Priority;
         }

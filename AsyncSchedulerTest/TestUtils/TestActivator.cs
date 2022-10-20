@@ -5,10 +5,10 @@ namespace AsyncSchedulerTest.TestUtils
 {
     public class TestActivator : IServiceProvider
     {
-        private readonly SimpleJob _simpleJobInstance;
-        private readonly ShutdownJob _shutdownJobInstance;
+        private readonly SimpleJob? _simpleJobInstance;
+        private readonly ShutdownJob? _shutdownJobInstance;
 
-        public TestActivator(SimpleJob simpleJobInstance = null, ShutdownJob shutdownJobInstance = null)
+        public TestActivator(SimpleJob? simpleJobInstance = null, ShutdownJob? shutdownJobInstance = null)
         {
             _simpleJobInstance = simpleJobInstance;
             _shutdownJobInstance = shutdownJobInstance;
@@ -32,7 +32,7 @@ namespace AsyncSchedulerTest.TestUtils
             {
                 return _shutdownJobInstance;
             }
-            return Activator.CreateInstance(serviceType);
+            return Activator.CreateInstance(serviceType) ?? throw new InvalidOperationException("Unable to create object for type: " + serviceType);
         }
     }
 }
