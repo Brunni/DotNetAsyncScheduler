@@ -34,7 +34,7 @@ namespace AsyncSchedulerTest
         {
             _scheduler.JobManager.AddJob<SimpleJob, ScheduleOnce>();
             await RunScheduler(TimeSpan.FromSeconds(0.5));
-            var jobKey = typeof(SimpleJob).FullName;
+            string jobKey = typeof(SimpleJob).FullName!;
             var lastSuccessfulJobResult = _scheduler.JobHistory.GetLastSuccessfulJobResult(jobKey);
             lastSuccessfulJobResult.Should().NotBeNull();
             _scheduler.JobHistory.GetLastJobResult(jobKey).Should()
@@ -50,7 +50,7 @@ namespace AsyncSchedulerTest
         {
             _scheduler.JobManager.AddJob<SimpleJob, NotImplementedSchedule>();
             await RunScheduler(TimeSpan.FromSeconds(0.5));
-            var jobKey = typeof(SimpleJob).FullName;
+            string jobKey = typeof(SimpleJob).FullName!;
             var lastSuccessfulJobResult = _scheduler.JobHistory.GetLastSuccessfulJobResult(jobKey);
             lastSuccessfulJobResult.Should().BeNull();
             _scheduler.JobHistory.GetLastJobResult(jobKey).Should().BeNull();
@@ -65,7 +65,7 @@ namespace AsyncSchedulerTest
             var quickStartTask = _scheduler.QuickStart<SimpleJob>();
             await runSchedulerTask;
 
-            var jobKey = typeof(SimpleJob).FullName;
+            string jobKey = typeof(SimpleJob).FullName!;
             var lastSuccessfulJobResult = _scheduler.JobHistory.GetLastSuccessfulJobResult(jobKey);
             lastSuccessfulJobResult.Should().NotBeNull();
             _scheduler.JobHistory.GetLastJobResult(jobKey).Should()
@@ -96,7 +96,7 @@ namespace AsyncSchedulerTest
         {
             _scheduler.JobManager.AddJob<NotImplementedJob, ScheduleOnce>();
             await RunScheduler(TimeSpan.FromSeconds(0.5));
-            var jobKey = typeof(NotImplementedJob).FullName;
+            string jobKey = typeof(NotImplementedJob).FullName!;
             _scheduler.JobHistory.GetLastSuccessfulJobResult(jobKey).Should().BeNull();
             var lastResult = _scheduler.JobHistory.GetLastJobResult(jobKey);
             lastResult.Should().NotBeNull();
@@ -112,7 +112,7 @@ namespace AsyncSchedulerTest
         {
             _scheduler.JobManager.AddJob<AsyncExceptionJob, ScheduleOnce>();
             await RunScheduler(TimeSpan.FromSeconds(0.5));
-            var jobKey = typeof(AsyncExceptionJob).FullName;
+            string jobKey = typeof(AsyncExceptionJob).FullName!;
             _scheduler.JobHistory.GetLastSuccessfulJobResult(jobKey).Should().BeNull();
             var lastResult = _scheduler.JobHistory.GetLastJobResult(jobKey);
             lastResult.Should().NotBeNull();
@@ -126,7 +126,7 @@ namespace AsyncSchedulerTest
         [Fact]
         public async Task AddOneJob_ScheduleEndless_ExecutesJobSeveralTimes()
         {
-            var executionCountBefore = _simpleJobInstance.ExecutionCount;
+            int executionCountBefore = _simpleJobInstance.ExecutionCount;
             // Hint: We reduce the delay for each run
             _scheduler.LoopDelay = TimeSpan.FromSeconds(0.1);
             _scheduler.JobManager.AddJob<SimpleJob, ScheduleEndless>();
@@ -134,7 +134,7 @@ namespace AsyncSchedulerTest
             // Act
             await RunScheduler(TimeSpan.FromSeconds(2));
 
-            var jobKey = typeof(SimpleJob).FullName;
+            string jobKey = typeof(SimpleJob).FullName!;
             var lastSuccessfulJobResult = _scheduler.JobHistory.GetLastSuccessfulJobResult(jobKey);
             lastSuccessfulJobResult.Should().NotBeNull();
             _scheduler.JobHistory.GetLastJobResult(jobKey).Should()
@@ -150,7 +150,7 @@ namespace AsyncSchedulerTest
         [Fact]
         public async Task AddOneJob_ScheduleEndless_RemoveJobInBetween_ExecutesJobSeveralTimes()
         {
-            var executionCountBefore = _simpleJobInstance.ExecutionCount;
+            int executionCountBefore = _simpleJobInstance.ExecutionCount;
             // Hint: We reduce the delay for each run
             _scheduler.LoopDelay = TimeSpan.FromSeconds(0.1);
             _scheduler.JobManager.AddJob<SimpleJob, ScheduleEndless>();
@@ -162,7 +162,7 @@ namespace AsyncSchedulerTest
             _scheduler.JobManager.RemoveJob<SimpleJob>();
             await schedulerTask;
 
-            var jobKey = typeof(SimpleJob).FullName;
+            string jobKey = typeof(SimpleJob).FullName!;
             var lastSuccessfulJobResult = _scheduler.JobHistory.GetLastSuccessfulJobResult(jobKey);
             lastSuccessfulJobResult.Should().NotBeNull();
             _scheduler.JobHistory.GetLastJobResult(jobKey).Should()
@@ -178,7 +178,7 @@ namespace AsyncSchedulerTest
         [Fact]
         public async Task AddOneJob_ScheduleOnce_UpdateScheduleTo_ScheduleEndless_ExecutesJobSeveralTimes()
         {
-            var executionCountBefore = _simpleJobInstance.ExecutionCount;
+            int executionCountBefore = _simpleJobInstance.ExecutionCount;
             // Hint: We reduce the delay for each run
             _scheduler.LoopDelay = TimeSpan.FromSeconds(0.1);
             _scheduler.JobManager.AddJob<SimpleJob, ScheduleOnce>();
@@ -192,7 +192,7 @@ namespace AsyncSchedulerTest
             _scheduler.JobManager.UpdateSchedule<SimpleJob, ScheduleEndless>();
             await schedulerTask;
 
-            var jobKey = typeof(SimpleJob).FullName;
+            string jobKey = typeof(SimpleJob).FullName!;
             var lastSuccessfulJobResult = _scheduler.JobHistory.GetLastSuccessfulJobResult(jobKey);
             lastSuccessfulJobResult.Should().NotBeNull();
             _scheduler.JobHistory.GetLastJobResult(jobKey).Should()
@@ -207,10 +207,10 @@ namespace AsyncSchedulerTest
 
         private async Task RunScheduler(TimeSpan schedulerTime)
         {
-            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+            var cancellationTokenSource = new CancellationTokenSource();
             var schedulerTask = _scheduler.Start(cancellationTokenSource.Token);
             // ReSharper disable MethodSupportsCancellation
-            await Task.Delay(schedulerTime).ContinueWith((t) => cancellationTokenSource.Cancel());
+            await Task.Delay(schedulerTime).ContinueWith(_ => cancellationTokenSource.Cancel());
             var schedulerFinishTimeout = TimeSpan.FromSeconds(1);
             await Task.WhenAny(schedulerTask, Task.Delay(schedulerFinishTimeout));
             cancellationTokenSource.Cancel();

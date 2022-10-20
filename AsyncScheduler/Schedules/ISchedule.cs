@@ -16,7 +16,6 @@ namespace AsyncScheduler.Schedules
         /// </summary>
         /// <remarks>Priority only plays a role, if restrictions are applied.</remarks>
         /// <returns>0 = don't execute</returns>
-        int GetExecutionPriority(string jobKey, IJobHistoryEntry lastExecution,
-            IJobHistoryEntry lastSuccessfulExecution, DateTime now);
+        int GetExecutionPriority(string jobKey, IJobHistoryEntry? lastExecution, IJobHistoryEntry? lastSuccessfulExecution, DateTimeOffset now);
     }
 }

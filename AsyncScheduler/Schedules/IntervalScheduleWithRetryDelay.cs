@@ -6,7 +6,7 @@ namespace AsyncScheduler.Schedules
     /// <summary>
     /// Trigger job as in <see cref="IntervalSchedule"/> but retry failed attempts after the retry delay.
     /// </summary>
-    public class IntervalScheduleWithRetryDelay : IScheduleWithPrio, ISchedule
+    public class IntervalScheduleWithRetryDelay : IScheduleWithPrio
     {
         private readonly IntervalSchedule _intervalSchedule;
 
@@ -20,14 +20,14 @@ namespace AsyncScheduler.Schedules
         }
 
         /// <inheritdoc />
-        public int GetExecutionPriority(string jobKey, IJobHistoryEntry lastExecution, IJobHistoryEntry lastSuccessfulExecution, DateTime now)
+        public int GetExecutionPriority(string jobKey, IJobHistoryEntry? lastExecution, IJobHistoryEntry? lastSuccessfulExecution, DateTimeOffset now)
         {
-            var basePriority = _intervalSchedule.GetExecutionPriority(jobKey, lastExecution, lastSuccessfulExecution, now);
+            int basePriority = _intervalSchedule.GetExecutionPriority(jobKey, lastExecution, lastSuccessfulExecution, now);
             if (basePriority > 0)
             {
                 return basePriority;
             }
-            if (lastExecution.JobResult == JobResult.Failure)
+            if (lastExecution?.JobResult == JobResult.Failure)
             {
                 // Don't retry immediately
                 if (lastExecution.ExecutionTime + RetryDelay > now)

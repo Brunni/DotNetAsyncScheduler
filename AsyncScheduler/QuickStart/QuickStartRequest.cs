@@ -3,6 +3,10 @@ using System.Threading.Tasks;
 
 namespace AsyncScheduler.QuickStart
 {
+    /// <summary>
+    /// Quick start allows jobs to be added (e.g. via UI), which are triggered in the next run (when no restrictions apply).
+    /// A request can be cancelled by the user via cancellationToken.
+    /// </summary>
     internal class QuickStartRequest
     {
         private readonly CancellationToken _cancellationToken;
@@ -11,11 +15,11 @@ namespace AsyncScheduler.QuickStart
         /// Requested job
         /// </summary>
         /// <remarks>returns null, if request was cancelled</remarks>
-        public string JobKey => _cancellationToken.IsCancellationRequested ? null : _jobKey;
+        public string? JobKey => _cancellationToken.IsCancellationRequested ? null : _jobKey;
         
         private readonly string _jobKey;
 
-        private readonly TaskCompletionSource<QuickStartResult> _taskCompletionSource = new TaskCompletionSource<QuickStartResult>();
+        private readonly TaskCompletionSource<QuickStartResult> _taskCompletionSource = new();
 
         public QuickStartRequest(string jobKey, CancellationToken cancellationToken)
         {
@@ -34,9 +38,7 @@ namespace AsyncScheduler.QuickStart
         /// <param name="success">true, when started; false, when not started (e.g. restrictions)</param>
         public void MarkExecution(QuickStartResult success)
         {
-            // _executionResult = success;
             _taskCompletionSource.SetResult(success);
-            // _semaphoreResultAvailable.Release();
         }
     }
 }

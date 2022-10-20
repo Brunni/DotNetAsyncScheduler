@@ -11,7 +11,7 @@ namespace AsyncSchedulerTest.Restrictions
         {
             var concurrentJobRestriction = new ConcurrentJobRestriction {MaximumParallelJobs = 3};
 
-            concurrentJobRestriction.RestrictStart("job", new string[] {"1", "2"}).Should().BeFalse();
+            concurrentJobRestriction.RestrictStart("job", new[] {"1", "2"}).Should().BeFalse();
         }
 
         [Fact]
@@ -19,7 +19,7 @@ namespace AsyncSchedulerTest.Restrictions
         {
             var concurrentJobRestriction = new ConcurrentJobRestriction {MaximumParallelJobs = 3};
 
-            concurrentJobRestriction.RestrictStart("job", new string[] {"1", "2", "3"}).Should().BeTrue();
+            concurrentJobRestriction.RestrictStart("job", new[] {"1", "2", "3"}).Should().BeTrue();
         }
 
         [Fact]
@@ -27,7 +27,7 @@ namespace AsyncSchedulerTest.Restrictions
         {
             var concurrentJobRestriction = new ConcurrentJobRestriction {MaximumParallelJobs = 1, ExceptionList = new[] {"job"}};
 
-            concurrentJobRestriction.RestrictStart("job", new string[] {"1", "2"}).Should().BeFalse();
+            concurrentJobRestriction.RestrictStart("job", new[] {"1", "2"}).Should().BeFalse();
         }
 
         [Fact]
@@ -35,7 +35,7 @@ namespace AsyncSchedulerTest.Restrictions
         {
             var concurrentJobRestriction = new ConcurrentJobRestriction {MaximumParallelJobs = 2, ExceptionList = new[] {"job"}};
 
-            concurrentJobRestriction.RestrictStart("1", new string[] {"job", "2"}).Should().BeFalse();
+            concurrentJobRestriction.RestrictStart("1", new[] {"job", "2"}).Should().BeFalse();
         }
 
         [Fact]
@@ -43,7 +43,7 @@ namespace AsyncSchedulerTest.Restrictions
         {
             var concurrentJobRestriction = new ConcurrentJobRestriction {MaximumParallelJobs = 1, ExceptionList = new[] {"job2", "job"}};
 
-            concurrentJobRestriction.RestrictStart("1", new string[] {"job", "job2"}).Should().BeFalse();
+            concurrentJobRestriction.RestrictStart("1", new[] {"job", "job2"}).Should().BeFalse();
         }
     }
 }

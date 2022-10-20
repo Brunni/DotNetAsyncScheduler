@@ -8,7 +8,7 @@ namespace AsyncSchedulerTest.Schedules
 {
     public class ScheduleOnceWithRetryDelayTest
     {
-        private readonly ScheduleOnceWithRetryDelay _schedule = new ScheduleOnceWithRetryDelay();
+        private readonly ScheduleOnceWithRetryDelay _schedule = new();
         
         private readonly string _jobKey = "keyNotUsed";
 

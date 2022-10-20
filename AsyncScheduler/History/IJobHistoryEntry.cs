@@ -10,7 +10,7 @@ namespace AsyncScheduler.History
         /// <summary>
         /// Execution time
         /// </summary>
-        DateTime ExecutionTime { get; }
+        DateTimeOffset ExecutionTime { get; }
 
         /// <summary>
         /// Key of the job

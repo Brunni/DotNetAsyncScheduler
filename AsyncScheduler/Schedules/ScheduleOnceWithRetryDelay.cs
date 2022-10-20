@@ -7,7 +7,7 @@ namespace AsyncScheduler.Schedules
     /// Schedule which executes task once without delay.
     /// On failed execution, execution is retried again and again with <see cref="RetryDelay"/>.
     /// </summary>
-    public class ScheduleOnceWithRetryDelay : ISchedule, IScheduleWithPrio
+    public class ScheduleOnceWithRetryDelay : IScheduleWithPrio
     {
         /// <summary>
         /// Delay for retry after failed execution.
@@ -15,8 +15,8 @@ namespace AsyncScheduler.Schedules
         public TimeSpan RetryDelay { get; set; } = TimeSpan.FromSeconds(30);
 
         /// <inheritdoc />
-        public int GetExecutionPriority(string jobKey, IJobHistoryEntry lastExecution, IJobHistoryEntry lastSuccessfulExecution,
-            DateTime now)
+        public int GetExecutionPriority(string jobKey, IJobHistoryEntry? lastExecution, IJobHistoryEntry? lastSuccessfulExecution,
+            DateTimeOffset now)
         {
             if (lastSuccessfulExecution == null) {
                 //Hint: Delayed retry

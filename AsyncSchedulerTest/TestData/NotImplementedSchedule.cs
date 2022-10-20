@@ -13,8 +13,8 @@ namespace AsyncSchedulerTest.TestData
             Marker = marker;
         }
 
-        public int GetExecutionPriority(string jobKey, IJobHistoryEntry lastExecution, IJobHistoryEntry lastSuccessfulExecution,
-            DateTime now)
+        public int GetExecutionPriority(string jobKey, IJobHistoryEntry? lastExecution, IJobHistoryEntry? lastSuccessfulExecution,
+            DateTimeOffset now)
         {
             throw new NotImplementedException();
         }

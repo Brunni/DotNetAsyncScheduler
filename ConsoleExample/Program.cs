@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace ConsoleExample
 {
@@ -93,7 +94,7 @@ namespace ConsoleExample
             }
         }
 
-        private static void ConsoleOnCancelKeyPress(object sender, ConsoleCancelEventArgs e, ILogger<Program> logger)
+        private static void ConsoleOnCancelKeyPress(object sender, ConsoleCancelEventArgs e, ILogger logger)
         {
             logger.LogInformation("Cancel Key was pressed. CancellationToken will be cancelled");
             _cancellationTokenSource.Cancel();

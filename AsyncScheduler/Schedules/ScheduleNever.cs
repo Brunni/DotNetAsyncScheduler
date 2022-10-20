@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using AsyncScheduler.History;
 
 namespace AsyncScheduler.Schedules
@@ -13,7 +9,7 @@ namespace AsyncScheduler.Schedules
     public class ScheduleNever : ISchedule
     {
         /// <inheritdoc />
-        public int GetExecutionPriority(string jobKey, IJobHistoryEntry lastExecution, IJobHistoryEntry lastSuccessfulExecution, DateTime now)
+        public int GetExecutionPriority(string jobKey, IJobHistoryEntry? lastExecution, IJobHistoryEntry? lastSuccessfulExecution, DateTimeOffset now)
         {
             return 0;
         }

@@ -7,7 +7,10 @@ namespace AsyncScheduler
     /// </summary>
     public interface ISchedulerClock
     {
-        DateTime GetNow();
+        /// <summary>
+        /// Returns now
+        /// </summary>
+        DateTimeOffset GetNow();
     }
 
     /// <summary>
@@ -15,9 +18,9 @@ namespace AsyncScheduler
     /// </summary>
     internal class UtcSchedulerClock : ISchedulerClock
     {
-        public DateTime GetNow()
+        public DateTimeOffset GetNow()
         {
-            return DateTime.UtcNow;
+            return DateTimeOffset.Now;
         }
     }
 }

@@ -26,10 +26,10 @@ namespace AsyncSchedulerTest
             _jobManager.Jobs.Should().HaveCount(1);
             _jobManager.Schedules.Should().HaveCount(1);
 
-            var jobKey = typeof(NotImplementedJob).FullName;
-            _jobManager.Jobs[jobKey].Should().Be<NotImplementedJob>();
+            string? jobKey = typeof(NotImplementedJob).FullName;
+            _jobManager.Jobs[jobKey!].Should().Be<NotImplementedJob>();
             // ReSharper disable once SuspiciousTypeConversion.Global
-            ((NotImplementedSchedule) _jobManager.Schedules[jobKey].GetSchedule())?.Marker.Should().Be("1");
+            ((NotImplementedSchedule?) _jobManager.Schedules[jobKey!].GetSchedule())?.Marker.Should().Be("1");
         }
         
         [Fact]
@@ -39,10 +39,10 @@ namespace AsyncSchedulerTest
             _jobManager.Jobs.Should().HaveCount(1);
             _jobManager.Schedules.Should().HaveCount(1);
 
-            var jobKey = typeof(NotImplementedJob).FullName;
-            _jobManager.Jobs[jobKey].Should().Be<NotImplementedJob>();
-            var firstSchedule = (NotImplementedSchedule) _jobManager.Schedules[jobKey].GetSchedule();
-            var secondSchedule = (NotImplementedSchedule) _jobManager.Schedules[jobKey].GetSchedule();
+            string? jobKey = typeof(NotImplementedJob).FullName;
+            _jobManager.Jobs[jobKey!].Should().Be<NotImplementedJob>();
+            var firstSchedule = (NotImplementedSchedule?) _jobManager.Schedules[jobKey!].GetSchedule();
+            var secondSchedule = (NotImplementedSchedule?) _jobManager.Schedules[jobKey!].GetSchedule();
             firstSchedule?.Marker.Should().Be("DI");
             // Each instance is newly requested.
             firstSchedule.Should().NotBeSameAs(secondSchedule);
@@ -55,8 +55,8 @@ namespace AsyncSchedulerTest
             Action add = () => _jobManager.AddJob<NotImplementedJob>(new NotImplementedSchedule("2"));
             add.Should().Throw<Exception>();
             
-            var jobKey = typeof(NotImplementedJob).FullName;
-            ((NotImplementedSchedule) _jobManager.Schedules[jobKey].GetSchedule())?.Marker.Should().Be("1");
+            string? jobKey = typeof(NotImplementedJob).FullName;
+            ((NotImplementedSchedule?) _jobManager.Schedules[jobKey!].GetSchedule())?.Marker.Should().Be("1");
         }
         
         [Fact]
@@ -67,9 +67,9 @@ namespace AsyncSchedulerTest
             _jobManager.Jobs.Should().HaveCount(1);
             _jobManager.Schedules.Should().HaveCount(1);
 
-            var jobKey = typeof(NotImplementedJob).FullName;
-            _jobManager.Jobs[jobKey].Should().Be<NotImplementedJob>();
-            ((NotImplementedSchedule) _jobManager.Schedules[jobKey].GetSchedule())?.Marker.Should().Be("2");
+            string? jobKey = typeof(NotImplementedJob).FullName;
+            _jobManager.Jobs[jobKey!].Should().Be<NotImplementedJob>();
+            ((NotImplementedSchedule?) _jobManager.Schedules[jobKey!].GetSchedule())?.Marker.Should().Be("2");
         }
         
         [Fact]

@@ -1,6 +1,4 @@
-﻿using JetBrains.Annotations;
-
-namespace AsyncScheduler.Schedules
+﻿namespace AsyncScheduler.Schedules
 {
     /// <summary>
     /// Common interface to provide a schedule for a job.
@@ -13,7 +11,6 @@ namespace AsyncScheduler.Schedules
         /// Provides or instantiates the schedule.
         /// </summary>
         /// <returns>schedule</returns>
-        [CanBeNull]
-        ISchedule GetSchedule();
+        ISchedule? GetSchedule();
     }
 }

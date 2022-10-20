@@ -29,7 +29,7 @@ namespace AsyncScheduler.Restrictions
                 return false;
             }
 
-            var isJobFromGroupAlreadyRunning = runningJobs.Any(j => _exclusiveJobGroup.Contains(j));
+            bool isJobFromGroupAlreadyRunning = runningJobs.Any(j => _exclusiveJobGroup.Contains(j));
             return isJobFromGroupAlreadyRunning;
         }
     }
