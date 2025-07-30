@@ -1,5 +1,43 @@
-bin/
-obj/
-/packages/
 riderModule.iml
 /_ReSharper.Caches/
+
+# Build- und Veröffentlichungsordner
+bin/
+obj/
+out/
+
+# User-spezifische Dateien
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio Code Snippets
+.vscode/
+
+# NuGet-Pakete
+*.nupkg
+*.snupkg
+packages/
+*.nuspec
+
+# Log-Dateien
+*.log
+
+# Einstellungen und temporäre Dateien
+*.vs/
+*.DS_Store
+Thumbs.db
+
+# Test- und Coverage-Dateien
+TestResults/
+*.coverage
+*.coveragexml
+
+# Sonstige temporäre Dateien
+_ReSharper*/
+*.resharper
+*.DotSettings.user
+
+# Konfigurationsdateien, die nicht geteilt werden sollen
+appsettings.Development.json
